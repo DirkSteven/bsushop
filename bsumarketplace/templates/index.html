@@ -40,42 +40,11 @@
          <div class="cart"><i class="fa fa-shopping-cart" id="cartIcon"></i><p class="count">0</p></div>
          <div class="shopbag" ><i class="fa fa-shopping-bag" id="ordersIcon" ></i></div>
          <div class="message"><i class="fa fa-envelope" id="messageIcon"></i></div>
-         <div class="acc" id="acc" ><i class="fa fa-user"></i></div>
+         <a href="{{ url_for('login') }}" id="login" class="custom-link">
+            <div class="acc" id="acc"><i class="fa fa-user"></i></div>
+        </a>        
       </div>
    </nav>
-   
-  <!-- Log In -->
-<div class="popup_acc" id="logInPopup">
-   <div class="form_pop">
-      <div class="close" id="closeLogIn"><i class="fa fa-close"></i></div>
-      <h1>Log In</h1>
-      <form class="log_in">
-         <h2>SR-Code <input type="text" placeholder=" "></h2>
-         <h2>Password <input type="password" placeholder=" "></h2>
-         <button class="log_btn">Log In</button>
-         <p id="haveAcc">Don't have an account? <a href="#" id="showSignUp">Sign Up</a></p>
-      
-      </form>
-   </div>
-</div>
-
-<!-- Sign Up -->
-<div class="popup_acc" id="signUpPopup">
-   <div class="form_pop_sign">
-      <div class="close" id="closeSignUp"><i class="fa fa-close"></i></div>
-      <h1 id="signUp">Sign Up</h1>
-      <form class="sign_up">
-         <!-- Sign Up form content here -->
-         <h2>Name <input type="text" placeholder=" "></h2>
-         <h2>Program <input type="text" placeholder=" "></h2>
-         <h2>Email <input type="text" placeholder=" "></h2>
-         <h2>SR-Code <input type="text" placeholder=" "></h2>
-         <h2>Password <input type="password" placeholder=" "></h2>
-         <button class="sign_btn">Sign Up</button>
-         <p>Already have an account?  <a href="#" id="showLogIn">Log In</a></p>
-      </form>
-   </div>
-</div>
 
 <!-- CART  -->
 <div class="Tab" id="cartTab">

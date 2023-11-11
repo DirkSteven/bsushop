@@ -102,6 +102,10 @@ nav .search_box span{
 nav .search_box span:hover{
     color: #00f349;
 }
+.custom-link {
+    color: inherit;
+    text-decoration: none;
+}
 
 #container{
     display: flex;
