@@ -651,3 +651,82 @@ nav .search_box span:hover{
     max-width: 100%; /* Set the maximum width for the images */
     height: auto; /* Maintain the aspect ratio */
   }
+
+/* Add this at the end of your CSS file */
+
+/* Style for form errors */
+.error {
+    color: #dc3545; /* Bootstrap's danger color */
+    font-size: 14px;
+    position: absolute;
+    top: 100%; /* Position the error message below the input field */
+}
+
+/* Style for form input containers */
+.form-group {
+    position: relative; /* Set the container to a relative position */
+    margin-bottom: 1rem;
+}
+
+/* Style for form labels */
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Style for form input fields */
+.form-group input {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.2rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Add some styling for better focus indication on form fields */
+.form-group input:focus {
+    border-color: #c71004;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(199, 16, 4, 0.25);
+}
+
+/* Style for the submit button */
+.form-group button {
+    background-color: #c71004;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.2rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Add hover effect to the submit button */
+.form-group button:hover {
+    background-color: #9f180e;
+}
+
+/* Add these styles to your existing CSS file */
+
+.alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 14px; /* Adjust the font size as needed */
+}
+
+.alert-info {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #31708f;
+}
+
+
+
+
+
+

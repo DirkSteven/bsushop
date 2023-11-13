@@ -18,29 +18,69 @@
 
 </head>
 <body>
-<div id="container">
-    <img src="{{ url_for('static', filename='img/bsu.png') }}" id="home">
-</div>
- 
- <!-- Sign Up -->
- <div class="popup_acc" id="signUpPopup">
-    <div class="form_pop_sign">
-       <h1 id="signUp">Sign Up</h1>
-       <form class="sign_up">
-          <!-- Sign Up form content here -->
-          <h2>Name <input type="text" placeholder=" "></h2>
-          <h2>Program <input type="text" placeholder=" "></h2>
-          <h2>Email <input type="text" placeholder=" "></h2>
-          <h2>SR-Code <input type="text" placeholder=" "></h2>
-          <h2>Password <input type="password" placeholder=" "></h2>
-          <button class="sign_btn">Sign Up</button>
-          <p>Already have an account?  <a href="{{ url_for('login') }}" id="showLogin" class= "custom-link"> Log In</a></p>
-       </form>
+   <div id="container">
+       <img src="{{ url_for('static', filename='img/bsu.png') }}" id="home">
+   </div>
+    
+    <!-- Sign Up -->
+    <div class="popup_acc" id="signUpPopup">
+       <div class="form_pop_sign">
+          <h1 id="signUp">Sign Up</h1>
+          <form class="sign_up" method="post" action="">
+            <!-- Sign Up form content here -->
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" class="form-control" placeholder=" " required>
+                {% if form.name.errors %}
+                    <p class="error">{{ form.name.errors[0] }}</p>
+                {% endif %}
+            </div>
+        
+            <div class="form-group">
+                <label for="program">Program</label>
+                <input type="text" name="program" class="form-control" placeholder=" " required>
+                {% if form.program.errors %}
+                    <p class="error">{{ form.program.errors[0] }}</p>
+                {% endif %}
+            </div>
+        
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" name="email" class="form-control" placeholder=" " required>
+                {% if form.email.errors %}
+                    <p class="error">{{ form.email.errors[0] }}</p>
+                {% endif %}
+            </div>
+        
+            <div class="form-group">
+                <label for="sr_code">SR-Code</label>
+                <input type="text" name="sr_code" class="form-control" placeholder=" " required>
+                {% if form.sr_code.errors %}
+                    <p class="error">{{ form.sr_code.errors[0] }}</p>
+                {% endif %}
+            </div>
+        
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" class="form-control" placeholder=" " required>
+                {% if form.password.errors %}
+                    <p class="error">{{ form.password.errors[0] }}</p>
+                {% endif %}
+            </div>
+        
+            <button class="sign_btn" type="submit">Sign Up</button>
+        
+            <p>Already have an account? <a href="{{ url_for('login') }}" id="showLogin" class="custom-link">Log In</a></p>
+        </form>
+        
+
+       </div>
     </div>
- </div>
+   
+   <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"> </script>
+  
 
-
-<script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"> </script>
-</body>
-
-</html>
+   </body>
+   </html>

@@ -17,11 +17,13 @@
     <title> BATSTATEU UNOFFICIAL MARKETPLACE </title>
     {% endif %}
 
+
    </head>  
 
 <body>
 
-      
+
+
    <!--Navigation Bar-->
    <nav>
       <div class="logo">
@@ -45,6 +47,9 @@
         </a>        
       </div>
    </nav>
+
+
+   
 
 <!-- CART  -->
 <div class="Tab" id="cartTab">
@@ -397,6 +402,9 @@
          </div>
 </section>
 
+
+
+
    <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/addTocart.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/search.js') }}"> </script>
@@ -404,6 +412,28 @@
    <script type="text/javascript" src="{{ url_for('static', filename='js/orders.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/categories.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/preview.js') }}"> </script>
+
+
+   <!-- NAGANA ETONG PART NA TO, KUNG NAILAW SA VS CODE PAKI IGNORE NAGANA TO, 100 PERCENT -->
+   
+   <script>
+      <!-- @ts-ignore -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  {% if category == 'success' %}
+                      // Display a popup alert for success messages
+                      alert('{{ message }}');
+                  {% endif %}
+              {% endfor %}
+          {% endif %}
+      {% endwith %}
+    </script>
+    
+    
+
+   
+
 </body>
 
 
