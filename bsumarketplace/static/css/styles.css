@@ -23,6 +23,7 @@ nav{
     text-align: center;
     padding: 2rem,4rem;
     box-shadow: 0px 4px 4px #00000040;
+    z-index: 100000;
 }
 nav .icon .logo{
     height: 3rem;
@@ -56,7 +57,7 @@ nav .side{
 }
 
 nav .cart:hover, .shopbag:hover, .message:hover, .acc:hover {
-   color: #00f349;
+   color: #cbcdcb;
 }
 nav .cart{
     display: flex;
@@ -100,13 +101,22 @@ nav .search_box span{
     font-size: 1.2rem;
 }
 nav .search_box span:hover{
-    color: #00f349;
+    color: #cfd7d1;
 }
 .custom-link {
     color: inherit;
     text-decoration: none;
+    color: #ffffff;
 }
-
+.custom-link:hover{
+    color: #f61909;
+}
+.custom-link1{
+    color: #c71004;
+}
+.custom-link1:hover{
+    color: #f61909;
+}
 #container{
     display: flex;
     align-items: center;
@@ -339,7 +349,7 @@ nav .search_box span:hover{
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 .log_in .log_btn:hover{
-    background-color: #9f180e;
+    background-color:#f61909 ;
 }
 .close{
     justify-items: right;
@@ -353,10 +363,10 @@ nav .search_box span:hover{
     text-align: center;
     align-items: center;
     justify-content: center;
-    color: #c71004;
+    color: #9f180e;
 }
 #showSignUp:hover{
-    color: #9f180e;
+    color:#f61909 ;
 }
 .log_in #haveAcc{
     display: flex;
@@ -381,13 +391,12 @@ nav .search_box span:hover{
     border-radius: 0.2rem;
 }
 #signUp{
-    font-size: 1.5rem;
+    font-size: 2rem;
     color: #c71004;
     font-weight: 800;
     align-items: center;
     justify-content: center;
     display: flex;
-    margin-top: 1rem;
 }
 
 .sign_up h2{
@@ -406,7 +415,7 @@ nav .search_box span:hover{
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
 }
 #signUp{
-    margin-top: -0.5rem;
+    margin-top: 2rem;
 }
 .sign_btn{
     display: flex;
@@ -423,7 +432,7 @@ nav .search_box span:hover{
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);    
 }
 .sign_btn:hover{
-    background-color: #9f180e;
+    background-color: #f61909;
 }
 #showLogIn{
     display: flex;
@@ -457,9 +466,10 @@ nav .search_box span:hover{
     overflow-x: hidden;
     padding: 20px;
     background-color: #eeecec;
-    box-shadow: -2px solid 4px hsl(0 4% 15% / 10%);
+    box-shadow: -5px 0px 10px rgba(0, 0, 0, 0.4);
     border: 1px solid var(#c71004);
     transition: 1.5s;
+    z-index: 1000000;
 }
 .Tab.active{
     right: 0;
@@ -475,7 +485,7 @@ nav .search_box span:hover{
     background-color: #c71004;
     padding: 10px;
 }
-.cart-box {
+.prod-box {
     display: grid;
     grid-template-columns: 5% 27% 40% 18%;
     align-items: center;
@@ -483,7 +493,7 @@ nav .search_box span:hover{
     border: 1px solid rgb(197, 196, 196);
     width: 100%;
 }
-.cart-box:hover{
+.prod-box:hover{
     border: 1px solid #c71004;
 }
 .custom-checkbox {
@@ -493,7 +503,7 @@ nav .search_box span:hover{
     background-color: red; 
     border: 2px solid #c71004;
 }
-.cart-img{
+.cart-img, .order-img{
     width: 100px;
     height: 100px;
     object-fit: contain;
@@ -502,24 +512,24 @@ nav .search_box span:hover{
 .detail-box{
     display: grid;
     row-gap: .5rem;
+    margin-bottom: 10px;
 }
-.cart-product-title{
+.cart-product-title, .order-product-title{
     font-size: 1rem;
     font-weight: 600;
     text-transform: uppercase;
     margin-top: 1rem;
 }
-.cart-price{
-    font-size: 0.8rem;
+.cart-price, .order-price, .cart-size, 
+.order-size, .cart-quantity, .order-quantity, .order-date{
+    font-size: 0.9rem;
     font-weight: 400;
 }
-.cart-quantity{
-    border: 1px solid var(#000000);
-    outline-color: var(#000000);
-    width: 2.4rem;
-    text-align: center;
-    font-size: 0.8rem;
-    margin-bottom: 1rem;
+.order-date{
+    white-space: nowrap;
+}
+#detail-order{
+    margin-left: 6rem;
 }
 .cart-remove{
     font-size: 24px;
@@ -539,6 +549,7 @@ nav .search_box span:hover{
 .total-price{
     margin-left: .5rem;
 }
+
 .btn-buy{
     display: flex;
     justify-content: center; 
@@ -566,22 +577,6 @@ nav .search_box span:hover{
     color: #c71004;
     cursor: pointer;
 }
-
-.add-cart{
-   position: absolute;
-   top: 9.4rem;
-   right: 13px;
-   background-color:#c71004;
-   color: #ffffff;
-   padding: 15px;
-   cursor: pointer;
-   border-radius: 0.4rem;
-}
-.add-cart:hover{
-   background-color: #c71004;
-   color: #c3c91c;
-}
-
 
 .message-content{
     display: flex;
@@ -630,7 +625,7 @@ nav .search_box span:hover{
     margin-right: 2rem;
   }
   
-  .send-button:hover {
+.send-button:hover {
     background-color: #f61909;
 }
 
@@ -638,7 +633,7 @@ nav .search_box span:hover{
     position: relative;
   }
   
-  .product-preview {
+.product-preview {
     cursor: pointer;
     transition: transform 0.0s;
     max-width: 600px; /* Set the maximum width for the preview images */
@@ -647,86 +642,152 @@ nav .search_box span:hover{
     position: absolute; /* Position the images absolutely within the container */
   }
   
-  .preview-img {
+.preview-img {
     max-width: 100%; /* Set the maximum width for the images */
     height: auto; /* Maintain the aspect ratio */
   }
 
-/* Add this at the end of your CSS file */
+/* Pop up */ 
 
-/* Style for form errors */
-.error {
-    color: #dc3545; /* Bootstrap's danger color */
-    font-size: 14px;
-    position: absolute;
-    top: 100%; /* Position the error message below the input field */
-}
-
-/* Style for form input containers */
-.form-group {
-    position: relative; /* Set the container to a relative position */
-    margin-bottom: 1rem;
-}
-
-/* Style for form labels */
-.form-group label {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-/* Style for form input fields */
-.form-group input {
-    display: block;
-    width: 100%;
-    padding: 0.5rem;
-    font-size: 1rem;
+#popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 100px;
+    width: 50rem;
+    height: 30rem;
+    border-radius: 1rem;
+    background-color: rgba(255, 255, 255, 255); 
     border: 1px solid #ccc;
-    border-radius: 0.2rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    z-index: 1;
 }
 
-/* Add some styling for better focus indication on form fields */
-.form-group input:focus {
-    border-color: #c71004;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(199, 16, 4, 0.25);
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    cursor: pointer;
+    color: #c71004;
+    font-size: 2rem;
 }
 
-/* Style for the submit button */
-.form-group button {
-    background-color: #c71004;
-    color: #ffffff;
-    border: none;
-    border-radius: 0.2rem;
-    padding: 0.5rem 1rem;
+.popup-image {
+    position: relative;
+    width: 17rem;
+    height: 23rem;
+    left: -5rem; /* Adjust this value as needed */
+    top: -2.5rem;
+}
+
+.productname {
+    position: absolute;
+    top: 22rem;
+    left: 3rem;
+    font-size: 1.7rem;
+    font-weight: 500;
+    margin-bottom: -1rem;
+}
+
+.productprice {
+    position: absolute;
+    top: 20rem; /* Adjust this value as needed */
+    left: 10rem;
+    font-size: 1.2rem;
+}
+
+#quantitySection {
+    display: flex;
+    align-items: center; /* Align items vertically in the center */
+    padding-left: 6.8rem;
+    margin-top: 0.8rem;
+    font-size: 1.2rem;
+    text-align: center;
+}
+#size{
+    margin-left: 1rem;
+}
+#quantity {
+    width: 5rem;
+}
+
+#stockInfo {
+    display: flex;
+    align-items: center;
+    margin-top: -18rem;
+    margin-left: 16.8rem;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+#sizeSection {
+    position: fixed;
+    left: 23rem; /* Adjust the left position as needed */ 
+    font-size: 1.4rem; /* Adjust the font size as needed */
+    display: flex;
+    text-align: center;
+    margin-top: -5rem;
+}
+
+#productPrice {
+    position: absolute;
+    top: 22.5rem; /* Adjust this value as needed */
+    left: 11.1rem;
     font-size: 1rem;
+}
+
+.product-without-sizes #stockInfo {
+    /* Your custom styles for stocks in products without sizes */
+    margin-top: -18rem; /* Adjust as needed */
+}
+
+.product-button {
+    position: absolute; 
+    text-align: center;
+    border: none;
+    background: none;
     cursor: pointer;
 }
 
-/* Add hover effect to the submit button */
-.form-group button:hover {
-    background-color: #9f180e;
+.buy-button img {
+    width: 10rem; /* Set your desired width */
+    height: 3rem; /* Set your desired height */
+    margin-left: 26rem; /* Set the right margin as needed */
+    margin-top: 1.2rem;
 }
 
-/* Add these styles to your existing CSS file */
-
-.alert {
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    font-size: 14px; /* Adjust the font size as needed */
+.add-to-cart-button img {
+    width: 6rem; /* Set your desired width */
+    height: 3.3rem; /* Set your desired height */
+    margin-left: 17rem; /* Set the right margin as needed */
+    margin-top: 1.2rem ;
+    margin-right: 2rem;
 }
 
-.alert-info {
-    background-color: #d9edf7;
-    border-color: #bce8f1;
-    color: #31708f;
+#quantitySection {
+    display: none;
 }
 
+#buttonsAndQuantityContainer {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
 
+#buttonsSection {
+    flex: 1;
+}
+.error-message {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ff0000;
+    font-weight: 400;
+    margin-top: 9rem;
+    margin-left: 3rem;
+    z-index: 1000;
 
-
-
-
+}

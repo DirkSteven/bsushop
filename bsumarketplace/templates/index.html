@@ -17,13 +17,10 @@
     <title> BATSTATEU UNOFFICIAL MARKETPLACE </title>
     {% endif %}
 
-
    </head>  
 
 <body>
-
-
-
+      
    <!--Navigation Bar-->
    <nav>
       <div class="logo">
@@ -39,7 +36,7 @@
          <span class="fa fa-search" id="searchIcon"></span>
       </div>
       <div class="side">
-         <div class="cart"><i class="fa fa-shopping-cart" id="cartIcon"></i><p class="count">0</p></div>
+         <div class="cart"><i class="fa fa-shopping-cart" id="cartIcon"></i><p class="count" id="cart-ctr">0</p></div>
          <div class="shopbag" ><i class="fa fa-shopping-bag" id="ordersIcon" ></i></div>
          <div class="message"><i class="fa fa-envelope" id="messageIcon"></i></div>
          <a href="{{ url_for('login') }}" id="login" class="custom-link">
@@ -48,11 +45,8 @@
       </div>
    </nav>
 
-
-   
-
-<!-- CART  -->
-<div class="Tab" id="cartTab">
+   <!-- CART  -->
+   <div class="Tab" id="cartTab">
    <h2 class="Tab-title">Your Cart</h2>
 
    <!-- CONTENT  -->
@@ -61,7 +55,7 @@
    <!-- TOTAL   -->
    <div class="total">
       <div class="total-title">Total</div>
-      <div class="total-price">$0</div>
+      <div class="total-price"> ₱0</div>
    </div>
    <!-- BUY BUTTON  -->
    <button type="button" class="btn-buy">Buy Now</button>
@@ -93,6 +87,17 @@
    </div>
    <!-- CART CLOSE  -->
    <i class='bx bx-x close' id="closeOrder"></i>
+</div>
+
+<div id="popup">
+   <span class="close-btn" onclick="closePopup()">×</span>
+   <div class="popup-image-container">
+       <img id="popupImage" class="popup-image" src="" alt="Product Image">
+       <div id="productDetails" class="product-details">
+           <h3 class="productname"></h3>
+           <p id="productSize"></p>
+       </div>
+   </div>
 </div>
 
  <!--Home Section-->
@@ -243,167 +248,146 @@
 
 <!-- Uniform_section -->
          <div class = "product" id = "Uniform_section">
-            <div class="product_box" >
-               <div class="product_pic" >
-                  <img src= "{{ url_for('static', filename='img/product_polo.png') }}" class="pic_s" id = "product_polo">
-                     <div class="product_info">
-                        <h3 class="prod_name">Polo</h3>
-                        <h3 class="price">$12.50</h3>
-                     </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
+            <div class="product_box">
+               <div class="product_pic" onclick="openProductOptionsPopup('Polo', '{{ url_for('static', filename='img/product_polo.png') }}', true)">
+                  <img src="{{ url_for('static', filename='img/product_polo.png') }}" class="pic_s" id="product_polo">
+                  <div class="product_info">
+                      <h3 class="prod_name">Polo</h3>
+                      <h3 class="price"> ₱ 12.50</h3>
+                  </div>
+              </div>
+            <div class="product_pic" onclick="openProductOptionsPopup('Pants', '{{ url_for('static', filename='img/product_pants.png') }}', true)">
+               <img src="{{ url_for('static', filename='img/product_pants.png') }}" class="pic_s" id="product_pants">
+               <div class="product_info">
+                   <h3 class="prod_name">Pants</h3>
+                   <h3 class="price"> ₱ 12.50</h3>
                </div>
-               <div class="product_pic" >
-                  <img src="{{ url_for('static', filename='img/product_pants.png') }}" class="pic_s" id = "product_pants" >
-                     <div class="product_info">
-                        <h3 class="prod_name">Pants</h3>
-                        <h3 class="price">$12.50</h3>
-                     </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
-               </div>
-               <div class="product_pic" >
+            </div>
+               <div class="product_pic" onclick="openProductOptionsPopup('Blouse', '{{ url_for('static', filename='img/product_blouse.png') }}', true)">
                   <img src="{{ url_for('static', filename='img/product_blouse.png') }}" class="pic_s" id = "product_blouse">
                      <div class="product_info">
                         <h3 class="prod_name">Blouse</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('Skirt', '{{ url_for('static', filename='img/product_skirt.png') }}', true)">
                   <img src="{{ url_for('static', filename='img/product_skirt.png') }}" class="pic_s" id = "product_skirt">
                      <div class="product_info">
                         <h3 class="prod_name">Skirt</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('PE Pants', '{{ url_for('static', filename='img/product_pepants.png') }}', true)">
                   <img src="{{ url_for('static', filename='img/product_pepants.png') }}" class="pic_s" id = "product_pepants">
                      <div class="product_info">
                         <h3 class="prod_name">PE Pants</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('PE Shirt', '{{ url_for('static', filename='img/product_peshirt.png') }}', true)">
                   <img src="{{ url_for('static', filename='img/product_peshirt.png') }}" class="pic_s" id = "product_peshirt">
                      <div class="product_info">
                         <h3 class="prod_name">PE Shirt</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
             </div>
          </div>
          <!-- UNIVERSITY MERCH -->
          <div class = "product" id = "UniversityMerch_section">
             <div class="product_box" >
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('Tumbler', '{{ url_for('static', filename='img/BambooTumbler.png') }}', false)">
                   <img src="{{ url_for('static', filename='img/BambooTumbler.png') }}" class="pic_s" id = "BambooTumbler">
                      <div class="product_info">
                         <h3 class="prod_name">Bamboo Tumbler</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('Umbrella', '{{ url_for('static', filename='img/BATSTATEU-Umbrella.png') }}', false)" >
                   <img src="{{ url_for('static', filename='img/BATSTATEU-Umbrella.png') }}" class="pic_s" id = "BATSTATEU-Umbrella" >
                      <div class="product_info">
                         <h3 class="prod_name">BSU Umbrella</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('Shot Glass', '{{ url_for('static', filename='img/BATSTATEU-ShotGlass.png') }}', false)" >
                   <img src="{{ url_for('static', filename='img/BATSTATEU-ShotGlass.png') }}" class="pic_s" id = "BATSTATEU-ShotGlass">
                      <div class="product_info">
                         <h3 class="prod_name">Shot Glass</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('Coffee Mug', '{{ url_for('static', filename='img/DoubleWallCoffeeMug.png') }}', false)">
                   <img src="{{ url_for('static', filename='img/DoubleWallCoffeeMug.png') }}" class="pic_s" id = "DoubleWallCoffeeMug">
                      <div class="product_info">
                         <h3 class="prod_name">Coffee Mug</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('Notepad', '{{ url_for('static', filename='img/Notebook_and_pen.png') }}', false)">
                   <img src="{{ url_for('static', filename='img/Notebook_and_pen.png') }}" class="pic_s" id = "Notebook_and_pen">
                      <div class="product_info">
-                        <h3 class="prod_name">Notebook and Pen</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="prod_name">Notepad</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('Bucket Hat', '{{ url_for('static', filename='img/ReversableBucketHat.png') }}', false)">
                   <img src="{{ url_for('static', filename='img/ReversableBucketHat.png') }}" class="pic_s" id = "ReversableBucketHat">
                      <div class="product_info">
                         <h3 class="prod_name"> Bucket Hat</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
             </div>
          </div>
          <!-- UNIVERSITY MERCH -->
          <div class = "product" id = "ORGMerch_section">      
             <div class="product_box" >
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('ACES', '{{ url_for('static', filename='img/ACESOrgshirt.png') }}', true)">
                   <img src="{{ url_for('static', filename='img/ACESOrgshirt.png') }}" class="pic_s" id = "ACESOrgshirt">
                      <div class="product_info">
                         <h3 class="prod_name">ACES Org Shirt</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('ACES 2.0', '{{ url_for('static', filename='img/ACESShirt.png') }}', true)">
                   <img src="{{ url_for('static', filename='img/ACESShirt.png') }}" class="pic_s" id = "ACESShirt" >
                      <div class="product_info">
                         <h3 class="prod_name">ACES Shirt</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('CAFAD', '{{ url_for('static', filename='img/CAFADorgshirt.png') }}', true)" >
                   <img src="{{ url_for('static', filename='img/CAFADorgshirt.png') }}" class="pic_s" id = "CAFADorgshirt">
                      <div class="product_info">
                         <h3 class="prod_name">CAFAD Shirt</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('CHEO', '{{ url_for('static', filename='img/CHEOrgshirt.png') }}', true)">
                   <img src="{{ url_for('static', filename='img/CHEOrgshirt.png') }}" class="pic_s" id = "CHEOrgshirt">
                      <div class="product_info">
                         <h3 class="prod_name">CHEO Shirt</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic">
+               <div class="product_pic"onclick="openProductOptionsPopup('CICS', '{{ url_for('static', filename='img/CICSOrgshirt.png') }}', true)">
                   <img src="{{ url_for('static', filename='img/CICSOrgshirt.png') }}" class="pic_s" id = "CICSOrgshirt">
                      <div class="product_info">
                         <h3 class="prod_name">CICS Shirt</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
-               <div class="product_pic" >
+               <div class="product_pic" onclick="openProductOptionsPopup('Tote Bag', '{{ url_for('static', filename='img/EverUpwardToteBag.png') }}', false)">
                   <img src="{{ url_for('static', filename='img/EverUpwardToteBag.png') }}" class="pic_s" id = "EverUpwardToteBag">
                      <div class="product_info">
                         <h3 class="prod_name">Tote Bag</h3>
-                        <h3 class="price">$12.50</h3>
+                        <h3 class="price"> ₱ 12.50</h3>
                      </div>
-                     <i class="fa fa-shopping-bag add-cart"></i>
                </div>
             </div>
          </div>
 </section>
-
-
-
 
    <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/addTocart.js') }}"> </script>
@@ -412,10 +396,10 @@
    <script type="text/javascript" src="{{ url_for('static', filename='js/orders.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/categories.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/preview.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/pop-upOrder.js') }}"> </script>
+   
 
 
-   
-   
    <script>
       <!-- @ts-ignore -->
       {% with messages = get_flashed_messages(with_categories=true) %}
@@ -429,11 +413,6 @@
           {% endif %}
       {% endwith %}
     </script>
-    
-    
-
-   
-
 </body>
 
 
