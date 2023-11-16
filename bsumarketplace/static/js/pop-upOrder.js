@@ -217,7 +217,7 @@ function openProductOptionsPopup(productName, imageUrl, hasSizes) {
         <input type="number" value="1" class="quantity" id="quantity" min="1" max="${hasSizes ? '' : selectedProduct.stock}">
     </div>
     <div id="buttonsSection" class="${productClass}">
-    <button id="BUY_button_${productName}" class="buy-button product-button" onclick="toggleButton('BUY_NOW', '${productName}')">
+    <button id="BUY_button_${productName}" class="buy-button product-button" onclick="toggleButton('BUY', '${productName}')">
         <img src="/static/img/BUY.png" alt="BUY Button" class="button-image">
     </button>
     <button id="Add_to_Cart_button_${productName}" class="add-to-cart-button product-button" onclick="toggleButton('Add_to_Cart', '${productName}')">
@@ -255,7 +255,7 @@ function updateStockAndSize(productName) {
 
             // Show the quantity section when a size is selected
             quantitySection.style.display = 'block';
-
+            selectedProductInfo.price = price;
             // Update the quantity in selectedProductInfo
             const quantity = parseInt(quantityInput.value, 10);
             selectedProductInfo.quantity = quantity;
@@ -281,7 +281,7 @@ function updateStockAndSize(productName) {
 
         // Show the quantity section when sizes are not available
         quantitySection.style.display = 'block';
-
+        selectedProductInfo.price = selectedProduct.price;
         // Update the quantity in selectedProductInfo
         const quantity = parseInt(quantityInput.value, 10);
         selectedProductInfo.quantity = quantity;
@@ -289,56 +289,57 @@ function updateStockAndSize(productName) {
 }
 
 
+// Create an object to store button states
+const buttonStates = {};
+
 function toggleButton(type, productName) {
     const buttonId = `${type}_button_${productName}`;
     const button = document.getElementById(buttonId);
     const imagePath = `/static/img/${type}_CLICKED.png`;
 
-    // Find the selected product
-    const selectedProduct = products.find(p => p.name === productName);
+    // Set the button state to clicked
+    buttonStates[buttonId] = true;
 
-    if (type === 'Add_to_Cart' && button.dataset.clicked !== 'true') {
-        // If the button is the "Add to Cart" button and it's not clicked yet
+    const resetButtonState = () => {
+        // Reset the button state after a timeout
+        setTimeout(() => {
+            button.querySelector('.button-image').src = `/static/img/${type}.png`;
+
+            // Remove the clicked state
+            buttonStates[buttonId] = false;
+        }, 250);
+    };
+
+    if (selectedProductInfo) {
+        const selectedProduct = products.find(p => p.name === productName);
+
+        // If the product has sizes and no size is selected, prompt a message in the popup
         if (selectedProduct.hasSizes && selectedProductInfo.size === '') {
-            // If the product has sizes and no size is selected, prompt a message in the popup
             const errorMessage = document.getElementById('errorMessage');
             errorMessage.textContent = 'Please select a size.';
             errorMessage.style.color = 'red';
+
+            // Reset the button state immediately
+            resetButtonState();
             return; // Stop further execution
-        } else {
-            // Add the item to the cart
-            addItemToCart(
-                selectedProduct.name,
-                selectedProduct.hasSizes ? selectedProductInfo.size : null,
-                selectedProductInfo.imageUrl
-            );
         }
-    } else if (type === 'BUY_NOW' && button.dataset.clicked !== 'true') {
-        // If the button is the "Buy Now" button and it's not clicked yet, add the item to the order tab
-        addToOrderTab(
+
+        // Execute the corresponding action based on the button type
+        const actionFunction = type === 'Add_to_Cart' ? addItemToCart : addToOrderTab;
+        actionFunction(
             selectedProduct.name,
             selectedProduct.hasSizes ? selectedProductInfo.size : null,
-            selectedProductInfo.imageUrl,
-            selectedProductInfo.quantity
+            selectedProductInfo.imageUrl
         );
+
+        // Toggle the image source immediately
+        button.querySelector('.button-image').src = imagePath;
+
+        // Reset the button state after a timeout
+        resetButtonState();
     }
-
-
-    // Toggle the image source immediately
-    button.querySelector('.button-image').src = imagePath;
-
-    // Toggle the clicked state
-    button.dataset.clicked = 'true';
-
-    console.log(`${type} button clicked for ${productName}`);
-
-    // Set a timeout to change the image back to unclicked after 500 milliseconds (adjust as needed)
-    setTimeout(() => {
-        button.querySelector('.button-image').src = `/static/img/${type}.png`;
-        button.dataset.clicked = 'false';
-        console.log(`${type} button unclicked for ${productName}`);
-    }, 250);
 }
+
 
 function closePopup() {
     const popup = document.getElementById('popup');

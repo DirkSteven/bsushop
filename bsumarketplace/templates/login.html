@@ -41,10 +41,23 @@
             {% endwith %}
             <form class="log_in" method="POST" action="">
                 {{ form.hidden_tag() }}
-                <h2>SR-Code <input type="text" name="sr_code" placeholder="Enter Sr-Code" required></h2>
-                <h2>Password <input type="password" name="password" placeholder="Enter Password" required></h2>
+                <div class="form-group">
+                    <label for="sr_code">SR Code</label>
+                    <input type="text" name="sr_code" class="form-control" placeholder=" " required>
+                    {% if form.sr_code.errors %}
+                        <p class="error">{{ form.sr_code.errors[0] }}</p>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="text" name="password" class="form-control" placeholder=" " required>
+                    {% if form.password.errors %}
+                        <p class="error">{{ form.password.errors[0] }}</p>
+                    {% endif %}
+                </div>
+                
                 <button class="log_btn">Log In</button>
-                <p id="haveAcc">Don't have an account? <a href="{{ url_for('register') }}" id="showSignUp">Sign Up</a></p>
+                <p id="haveAcc">Don't have an account? <a href="{{ url_for('register') }}" id="showSignUp" class="custom-link1">Sign Up</a></p>
             </form>
         </div>
     </div>

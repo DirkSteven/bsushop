@@ -45,7 +45,6 @@ nav .icon h1{
 nav .side{
     display: flex;
     list-style: none;
-    padding: 0.6rem;
     margin-right: 4rem;
     margin-left: 2rem;
     color: rgb(255, 255, 255);
@@ -54,6 +53,7 @@ nav .side{
     justify-content: space-between;
     gap: 5rem;
     align-items: center;
+    position: relative;
 }
 
 nav .cart:hover, .shopbag:hover, .message:hover, .acc:hover {
@@ -64,7 +64,7 @@ nav .cart{
     justify-content: center;
     align-items: center;
 }
-nav .cart p{
+nav .cart .count {
     font-size: 0.6rem;
     padding: 0.1rem;
     width: 1rem;
@@ -72,8 +72,25 @@ nav .cart p{
     border-radius: 50%;
     background-color: #f47575;
     color: #ffffff;
+    
+}
+#cart-ctr{
     margin-left: -0.5rem;
     margin-top: -10px;
+}
+#order-ctr{
+    position: relative;
+    font-size: 0.6rem;
+    padding: 0.1rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: #f47575;
+    color: #ffffff;
+    margin-top: -2.5rem;
+    margin-bottom: 1.6rem;
+    margin-left: 1.5rem;
+    z-index: 100;
 }
 
 
@@ -113,6 +130,7 @@ nav .search_box span:hover{
 }
 .custom-link1{
     color: #c71004;
+    margin-left: 5px;
 }
 .custom-link1:hover{
     color: #f61909;
@@ -339,13 +357,13 @@ nav .search_box span:hover{
     align-items: center;
     justify-content: center;
     background-color: #c71004;
-    width: 94%;
-    margin: 10px;
+    width: 97%;
     border: none;
     color: #ffffff;
     border-radius: 0.2rem;
     padding: 0.5rem;
     margin-top: 2rem;
+    margin-bottom: 1rem;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 .log_in .log_btn:hover{
@@ -364,6 +382,9 @@ nav .search_box span:hover{
     align-items: center;
     justify-content: center;
     color: #9f180e;
+}
+.form_pop label{
+    margin-top: 1rem;
 }
 #showSignUp:hover{
     color:#f61909 ;
@@ -422,13 +443,13 @@ nav .search_box span:hover{
     align-items: center;
     justify-content: center;
     background-color: #c71004;
-    width: 94%;
-    margin: 10px;
+    width: 97%;
     border: none;
     color: #ffffff;
     border-radius: 0.2rem;
     padding: 0.5rem;
     margin-top: 2rem;
+    margin-bottom: 1rem;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);    
 }
 .sign_btn:hover{
@@ -791,3 +812,11 @@ nav .search_box span:hover{
     z-index: 1000;
 
 }
+.cart-size {
+    display: flex;
+    align-items: center; /* Align items vertically in the center */
+  }
+  
+  .cart-size label {
+    margin-right: 5px; /* Add some spacing between 'Size:' and the actual size */
+  }

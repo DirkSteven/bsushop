@@ -62,7 +62,7 @@ function addItemToCart(productName, size, imageUrl) {
 
     // Optionally, you can update the cart display here
     updateCartDisplay();
-    updateItemCount(1);
+    updateItemCount(quantity);
 }
 function updateCartDisplay() {
     // Get the cart container
@@ -96,7 +96,7 @@ function removeItemFromCart(title, size) {
 }
 
 function CartBoxComponent(title, price, imgSrc, size, quantity) {
-    const cartSize = size ? `Size: ${size}` : 'Size: N/A'; // If size is falsy, set it to 'N/A'
+    const cartSize = size ? `${size}` : ' N/A'; // If size is falsy, set it to 'N/A'
 
     return `
         <div class="prod-box" id="cart-box">
@@ -105,7 +105,10 @@ function CartBoxComponent(title, price, imgSrc, size, quantity) {
             <div class="detail-box">
                 <div class="cart-product-title">${title}</div>
                 <div class="cart-price">${price}</div>
-                <div class="cart-size">${cartSize}</div>
+                <div class="cart-size">
+                <label for="cartSize">Size: </label>
+                <div class="cart-size" id="cartSize">${cartSize}</div>
+                </div>
                 <div class="cart-quantity"> Qty: ${quantity}</div>
             </div>
             <i class='bx bxs-trash-alt cart-remove' onclick="removeItemFromCart('${title}', '${size}')"></i>
@@ -148,10 +151,18 @@ function updateTotal() {
 
 let itemCount = 0;
 
-// Function to update the item count
-function updateItemCount(change) {
-    // Update the itemCount based on the change value
-    itemCount += change;
+function updateItemCount() {
+    // Create a Set to store unique item identifiers
+    const uniqueItems = new Set();
+
+    // Count the number of unique items in the cart
+    cartItems.forEach(item => {
+        const itemIdentifier = `${item.title}-${item.size}`;
+        uniqueItems.add(itemIdentifier);
+    });
+
+    // Update the itemCount based on the number of unique items
+    itemCount = uniqueItems.size;
 
     // Get the element where you want to display the item count
     const itemCountElement = document.querySelector('#cart-ctr');
