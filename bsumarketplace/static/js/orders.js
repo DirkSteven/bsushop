@@ -137,3 +137,23 @@ function updateOrderCount(change) {
     // Update the display with the new item count
     orderCountElement.textContent = orderCount;
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const viewOrdersButton = document.getElementById('view-orders-btn');
+    const orderContent = document.querySelector('.order-content');
+
+    viewOrdersButton.addEventListener('click', function () {
+        // You can fetch orders from the server and update the order content dynamically
+        // For now, let's simulate a sample order
+        const orderItem = document.createElement('div');
+        orderItem.classList.add('order-item');
+        orderItem.innerHTML = `
+            <span>Product 1</span>
+            <span>Quantity: 2</span>
+            <span>Total: $25.00</span>
+        `;
+
+        // Append the order item to the order content
+        orderContent.appendChild(orderItem);
+    });
+});

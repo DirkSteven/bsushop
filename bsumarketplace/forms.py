@@ -1,7 +1,10 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from flask_login import current_user, logout_user
+from flask import session
 from bsumarketplace.models import User
+from bsumarketplace import bcrypt
 
 class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=25)])
@@ -26,12 +29,8 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError('SR-Code Already Exists')
 
-class LoginForm (FlaskForm):
-    password = PasswordField('Password',
-                            validators=[DataRequired()])
-    sr_code = StringField('Program', 
-                           validators=[DataRequired(), Length(min=3, max = 8)])
-    submit = SubmitField ('Login')
+class LoginForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    sr_code = StringField('Program', validators=[DataRequired(), Length(min=3, max=8)])
+    submit = SubmitField('Login')
 
-
-    
