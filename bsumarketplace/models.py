@@ -43,7 +43,7 @@ class Product(db.Model):
 class ProductVariant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    size = db.Column(db.String(20), nullable=False)  # Assuming size is a string
+    size = db.Column(db.String(20), nullable=True)  # Assuming size is a string
     stock = db.Column(db.Integer, nullable=False)
 
     # Define the relationship to the Product model

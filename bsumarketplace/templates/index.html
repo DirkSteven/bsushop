@@ -102,7 +102,7 @@
 <div id="popup">
    <span class="close-btn" onclick="closePopup()">×</span>
    <div class="popup-image-container">
-       <img id="popupImage" class="popup-image" src="" alt="Product Image">
+
        <div id="productDetails" class="product-details">
            <h3 class="productname"></h3>
            <p id="productSize"></p>
@@ -255,11 +255,12 @@
                <img src="{{ url_for('static', filename='img/DefaultProduct.png') }}" class="preview-img">
             </div>
           </div>
+
 <!-- Uniform -->
 <div class="product" id="Uniform_section">
    <div class="product_box">
        {% for product in uniform_products %}
-           <div class="product_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', true)">
+           <div class="product_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', true, {{ product.price }}, '{{ product.description }}', 'Uniform', '{{ product.id }}')">
                <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="pic_s" id="product_{{ product.name }}">
                <div class="product_info">
                    <h3 class="prod_name">{{ product.name }}</h3>
@@ -273,8 +274,8 @@
 <div class="product" id="UniversityMerch_section">
    <div class="product_box">
        {% for product in univ_merch_products %}
-           <div class="product_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', false)">
-               <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="pic_s" id="{{ product.name }}">
+           <div class="product_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', false, {{ product.price }}, '{{ product.description }}', 'University Merchandise', '{{ product.id }}')">
+               <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="pic_s" id="product_{{ product.name }}">
                <div class="product_info">
                    <h3 class="prod_name">{{ product.name }}</h3>
                    <h3 class="price"> ₱ {{ product.price }}</h3>
@@ -287,7 +288,7 @@
          <div class="product" id="ORGMerch_section">
             <div class="product_box">
                 {% for product in org_merch_products %}
-                    <div class="product_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', false)">
+                <div class="product_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', false, {{ product.price }},  '{{ product.description }}', 'Organization Merchandise' , '{{ product.id }}')">
                         <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="pic_s" id="{{ product.name }}">
                         <div class="product_info">
                             <h3 class="prod_name">{{ product.name }}</h3>

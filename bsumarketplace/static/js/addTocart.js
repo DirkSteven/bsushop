@@ -3,6 +3,8 @@ const cartIcon = document.querySelector("#cartIcon");
 const cart = document.querySelector("#cartTab");
 const closeCart = document.querySelector("#closeCart");
 
+
+
 cartIcon.addEventListener("click", () => {
     cart.classList.add("active");
   });
@@ -124,6 +126,7 @@ function start() {
 
     cartIcon.addEventListener("click", () => {
         cart.classList.add("active");
+        loadUserCart(); // Load user's cart when the cart is opened
     });
 
     closeCart.addEventListener("click", () => {
@@ -132,7 +135,6 @@ function start() {
 
     // Optionally, you can add more initialization code here
 }
-
 function updateTotal() {
     const totalElement = document.querySelector('.total-price');
 
@@ -209,7 +211,22 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+function loadUserCart() {
+    // Make an AJAX request to fetch the user's cart data from the server
+    fetch('/get_user_cart')
+        .then(response => response.json())
+        .then(data => {
+            // Update the client-side cart with the fetched data
+            cartItems = data.cartItems || [];  // This line might be causing the error
+            updateCartDisplay();
+            updateItemCount();
+        })
+        .catch(error => console.error('Error:', error));
+}
 
+// Call the loadUserCart function when the user logs in
+// (You might need to trigger this based on your login implementation)
+loadUserCart();
 
 sessionStorage.setItem('user_cart', JSON.stringify(user_cart));
 
@@ -221,4 +238,3 @@ document.cookie = 'cart_id=unique_cart_identifier; path=/';
 
 // Retrieve cart_id from cookies
 const cartId = document.cookie.split('; ').find(row => row.startsWith('cart_id=')).split('=')[1];
-
