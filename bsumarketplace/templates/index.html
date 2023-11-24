@@ -27,7 +27,7 @@
 
       
 
-      <a href="{{ url_for('logout') }}" class="custom-link">Logout</a>
+    
       <div class="logo">
          
       </div>
@@ -45,22 +45,22 @@
          <div class="shopbag" ><i class="fa fa-shopping-bag" id="ordersIcon" ></i><p class="count" id="order-ctr">0</p></div>
          <div class="message"><i class="fa fa-envelope" id="messageIcon"></i></div>
          {% if is_user_logged_in %}
-         <a href="{{ url_for('login') }}" onclick="openUserProfilePopup()" class="custom-link">  <i class="fa fa-user"></i>
+           <i class="fa fa-user" id="acc"></i>
             <div id="popup_acc">
                <div class="popAcc">
                   <img src="{{ url_for('static', filename='img/user_info.png') }}" alt="User Info Image">
                   <span class="close-btn" onclick="closePopup()">×</span>
                   <div class="user_info">
-                     <p class="uName">JUAN DELA CRUZ</p>
-                     <p class="uSRCode">12-3456</p>
-                     <p class="uProgram">BS COMPUTER SCIENCE</p>
-                     <p class="uEmail">juandelacruz@gmail.com</p>
-                     <p class="uID">AL-12</p>
+                     <p class="uName"></p>
+                     <p class="uSRCode"></p>
+                     <p class="uProgram"></p>
+                     <p class="uEmail"></p>
+                     <p class="uID"></p>
                   </div>
                   <button type="button" class="logout-btn">Log Out</button>
                </div>
             </div>
-         </a>
+         
          {% else %}
                <a href="{{ url_for('login') }}" class="custom-link">
                   <div class="acc" id="acc"><i class="fa fa-user"></i></div>
@@ -125,7 +125,7 @@
 </div>
 
 <div id="popup">
-   <span class="close-btn" onclick="closePopup()">×</span>
+   <span class="close-btn" onclick="closePopup_product()">×</span>
    <div class="popup-image-container">
 
        <div id="productDetails" class="product-details">
@@ -146,59 +146,20 @@
             <h4>Batangas State University - The National Engineering University Unofficial Market Place</h4>
          </div>
          <h1 class="suggest_text">Suggested for you</h1>
+        
          <div class="suggest">
+            {% for product in uniform_products %}
             <div class="suggest_box">
-               <div class="suggest_pic">
-                  <img src="{{ url_for('static', filename='img/product_polo.png') }}" class="pic_s">
+               
+               <div class="suggest_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', true, {{ product.price }}, '{{ product.description }}', 'Uniform', '{{ product.id }}')">
+                  <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="pic_s">
                   <div class="product_info">
-                     <h3 class="prod_name">Product</h3>
-                     <h3 class="price">100</h3>
+                     <h3 class="prod_name"> {{  product.name }}</h3>
+                     <h3 class="price">₱{{  product.price }}</h3>
                   </div>
-               </div>
-               
-               
+               </div> 
             </div>
-            <div class="suggest_box">
-               <div class="suggest_pic">
-                  <img src="{{ url_for('static', filename='img/product_skirt.png') }}" class="pic_s">
-                  <div class="product_info">
-                     <h3 class="prod_name">Product</h3>
-                     <h3 class="price">$12.50</h3>
-                  </div>
-               </div>
-               
-               
-            </div>
-            <div class="suggest_box">
-               <div class="suggest_pic">
-                  <img src="{{ url_for('static', filename='img/product_blouse.png') }}" class="pic_s">
-                  <div class="product_info">
-                     <h3 class="prod_name">Product</h3>
-                     <h3 class="price">$12.50</h3>
-                  </div>
-               </div>
-               
-               
-            </div>
-            <div class="suggest_box">
-               <div class="suggest_pic">
-                  <img src="{{ url_for('static', filename='img/product_pants.png') }}" class="pic_s">
-                  <div class="product_info">
-                     <h3 class="prod_name">Product</h3>
-                     <h3 class="price">$12.50</h3>
-                  </div>
-               </div>
-            </div>
-
-            <div class="suggest_box">
-               <div class="suggest_pic">
-                  <img src="{{ url_for('static', filename='img/product_pepants.png') }}" class="pic_s">
-                  <div class="product_info">
-                     <h3 class="prod_name">Product</h3>
-                     <h3 class="price">$12.50</h3>
-                  </div>
-               </div>
-            </div>
+            {% endfor %}
          </div>
 
          <div class="banner">
@@ -298,6 +259,7 @@
    <script type="text/javascript" src="{{ url_for('static', filename='js/categories.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/preview.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/pop-upOrder.js') }}"> </script> 
+   <script type="text/javascript" src="{{ url_for('static', filename='js/userInfo.js') }}"> </script>
 
    
    

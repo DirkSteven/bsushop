@@ -39,23 +39,23 @@ def index():
 
 
       #Print stocks and sizes for each product in the console
-    for product_id, variants in uniform_variants.items():
-         product = Product.query.get(product_id)
-         print(f"Uniform Product: {product.name}")
-         for variant in variants:
-             print(f"Size: {variant['size']}, Stock: {variant['stock']}")
+    # for product_id, variants in uniform_variants.items():
+    #      product = Product.query.get(product_id)
+    #      print(f"Uniform Product: {product.name}")
+    #      for variant in variants:
+    #          print(f"Size: {variant['size']}, Stock: {variant['stock']}")
 
-    for product_id, variants in univ_merch_variants.items():
-         product = Product.query.get(product_id)
-         print(f"UnivMerch Product: {product.name}")
-         for variant in variants:
-             print(f"Size: {variant['size']}, Stock: {variant['stock']}")
+    # for product_id, variants in univ_merch_variants.items():
+    #      product = Product.query.get(product_id)
+    #      print(f"UnivMerch Product: {product.name}")
+    #      for variant in variants:
+    #          print(f"Size: {variant['size']}, Stock: {variant['stock']}")
 
-    for product_id, variants in org_merch_variants.items():
-         product = Product.query.get(product_id)
-         print(f"OrgMerch Product: {product.name}")
-         for variant in variants:
-             print(f"Size: {variant['size']}, Stock: {variant['stock']}")
+    # for product_id, variants in org_merch_variants.items():
+    #      product = Product.query.get(product_id)
+    #      print(f"OrgMerch Product: {product.name}")
+    #      for variant in variants:
+    #          print(f"Size: {variant['size']}, Stock: {variant['stock']}")
 
     #  Render the template with the fetched data
     return render_template('index.html',
@@ -72,7 +72,7 @@ def index():
 def login():
     # Check if the user is already logged in
     if current_user.is_authenticated:
-        flash('User Already Logged In', 'info')
+        print('User Already Logged In', 'info')
         return redirect(url_for('index'))
 
     form = LoginForm()
@@ -102,11 +102,15 @@ def get_user_info():
     print (user_info)
     return jsonify(user_info)
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    logout_user()
-    flash('You have been logged out', 'info')
-    return redirect(url_for('index'))
+    if request.method == 'POST':
+        logout_user()
+        flash('You have been logged out', 'info')
+        return jsonify({'message': 'Logout successful'})
+    else:
+        # Handle GET request, e.g., redirect to the index page
+        return redirect(url_for('index'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

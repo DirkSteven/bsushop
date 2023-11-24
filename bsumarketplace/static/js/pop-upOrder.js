@@ -235,7 +235,7 @@ function displayFlash(message, category) {
     }, 200); // Adjust the duration as needed
 }
 
-function closePopup() {
+function closePopup_product() {
     const popup = document.getElementById('popup');
     popup.style.display = 'none';
 }

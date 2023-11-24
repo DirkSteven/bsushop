@@ -869,7 +869,15 @@ nav .search_box span:hover{
     background-color: #d9edf7;
     border-color: #bce8f1;
     color: #31708f;
+    padding: 10px;
+    padding-bottom: 0px;
+    margin-bottom: .1rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 14px; /* Adjust the font size as needed */
+
 }
+
 
 #popup, #popup_acc{
     display: none;
