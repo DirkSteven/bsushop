@@ -58,11 +58,8 @@ class Cart(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    selected_size = db.Column(db.String(20), nullable=True)  # New field for selected size
     date_added = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     def __repr__(self):
-        return f"Cart('{self.user_id}', '{self.product_id}', '{self.quantity}', '{self.date_added}')"
-    
-
-
-
+        return f"Cart('{self.user_id}', '{self.product_id}', '{self.quantity}', '{self.selected_size}', '{self.date_added}')"

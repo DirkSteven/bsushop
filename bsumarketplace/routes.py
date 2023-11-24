@@ -9,6 +9,8 @@ from bsumarketplace.models import User, Product, Category, ProductVariant, Cart
 @app.route('/')
 @app.route('/index')
 def index():
+
+    is_user_logged_in = current_user.is_authenticated
     # Fetch categories from the database
     uniform_category = Category.query.filter_by(name='Uniform').first()
     univ_merch_category = Category.query.filter_by(name='UnivMerch').first()
@@ -62,7 +64,7 @@ def index():
                            org_merch_products=org_merch_products,
                            uniform_variants=uniform_variants,
                            univ_merch_variants=univ_merch_variants,
-                           org_merch_variants=org_merch_variants)
+                           org_merch_variants=org_merch_variants, is_user_logged_in = is_user_logged_in)
 
 
 
@@ -85,6 +87,20 @@ def login():
             flash('Login Failed. Please check your SR-Code and password', 'danger')
 
     return render_template('login.html', title='Login', form=form)
+
+
+@app.route('/get_user_info', methods=['GET'])
+@login_required
+def get_user_info():
+    user_info = {
+        'name': current_user.name,
+        'email': current_user.email,
+        'program': current_user.program,
+        'sr_code': current_user.sr_code,
+        'id': current_user.id,
+    }
+    print (user_info)
+    return jsonify(user_info)
 
 @app.route('/logout')
 def logout():
@@ -127,19 +143,21 @@ def get_additional_data(product_id):
     print(f"Request made to {request.url}")
     return jsonify(additional_data)
 
+
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     data = request.get_json()
 
-    # Print the current user for debugging
-    print('Current User:', current_user)
-
     # Assuming the user is logged in, get the user ID from the current user
     user_id = current_user.id
 
-    # Add the selected product to the user's cart
-    cart_item = Cart(user_id=user_id, product_id=data['product_id'], quantity=data['quantity'])
+    # Extract the selected size from the request data
+    selected_size = data.get('selected_size', None)
+
+    # Add the selected product to the user's cart along with the selected size
+    cart_item = Cart(user_id=user_id, product_id=data['product_id'], quantity=data['quantity'], selected_size=selected_size)
     db.session.add(cart_item)
+    print ("Item Added to Cart", cart_item)
     db.session.commit()
 
     return jsonify({'message': 'Added to cart successfully'})
@@ -173,18 +191,28 @@ def display_flash():
 @app.route('/get_user_cart')
 @login_required
 def get_user_cart():
-    user_cart = Cart.query.filter_by(user_id=current_user.id).all()
+    user_cart = db.session.query(Cart, Product).\
+        filter(Cart.user_id == current_user.id).\
+        filter(Cart.product_id == Product.id).all()
 
     # Convert user_cart to a list of dictionaries for JSON serialization
     cart_items = []
-    for cart_item in user_cart:
+    for cart, product in user_cart:
         cart_items.append({
-            'product_id': cart_item.product_id,
-            'quantity': cart_item.quantity,
-            'date_added': cart_item.date_added.strftime("%Y-%m-%d %H:%M:%S")
+            'product_id': cart.product_id,
+            'quantity': cart.quantity,
+            'date_added': cart.date_added.strftime("%Y-%m-%d %H:%M:%S"),
+            'size': cart.selected_size,
+            'name': product.name,
+            'image_url': product.image_url,
+            'price': product.price  # You can include other product details as needed
         })
+    # print (cart_items)
 
     return jsonify({'cartItems': cart_items})
+
+
+
 
 
 
@@ -195,5 +223,37 @@ def get_variant_data(product_id):
     # Modify this based on your actual data structure
     variants = ProductVariant.query.filter_by(product_id=product_id).all()
     variant_data = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
-    print (variant_data)
+    # print (variant_data)
     return jsonify(variant_data)
+
+
+
+@app.route('/remove_from_cart', methods=['POST'])
+@login_required
+def remove_from_cart():
+    data = request.get_json()
+
+    product_name = data.get('productName')
+    size = data.get('size')
+
+    # Find the product and get its ID
+    product = Product.query.filter_by(name=product_name).first()
+
+    if product:
+        product_id = product.id
+
+        # Find the cart item in the database and delete it
+        cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id, selected_size=size).first()
+
+        if cart_item:
+            db.session.delete(cart_item)
+            db.session.commit()
+            print(f"Item removed from the cart and database. Product Name: {product_name}, Size: {size}")
+
+            return jsonify({'success': True, 'message': 'Item removed from the cart and database successfully'})
+        else:
+            print(f"Item not found in the cart or database. Product Name: {product_name}, Size: {size}")
+            return jsonify({'success': False, 'message': 'Item not found in the cart or database'})
+    else:
+        print(f"Product not found. Product Name: {product_name}")
+        return jsonify({'success': False, 'message': 'Product not found'})

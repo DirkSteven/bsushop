@@ -515,6 +515,7 @@ nav .search_box span:hover{
     margin-left: 0.5rem;
     background-color: red; 
     border: 2px solid #c71004;
+    z-index: 5;
 }
 .cart-img, .order-img{
     width: 100px;
@@ -870,17 +871,21 @@ nav .search_box span:hover{
     color: #31708f;
 }
 
-#popup {
+#popup, #popup_acc{
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-}
+    padding: 100px;
+    width: 50rem;
+    height: 30rem;
+    border-radius: 1rem;
+    background-color: rgba(255, 255, 255, 255); 
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    z-index: 1;
+} 
 
 .productname {
     font-size: 24px;
@@ -926,6 +931,68 @@ nav .search_box span:hover{
     font-size: 14px;
     margin-bottom: 15px;
     color: #555; /* or any other color of your choice */
+}
+
+#popup_acc img {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50rem;
+    height: 30rem;
+    border-radius: 1rem;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    z-index: -1;
+    overflow: hidden; /* Prevent content from overflowing */
+}
+#popup_acc .close-btn{
+    color: #bce8f1;
+    z-index: 2;
+    display: flex;
+}
+#popup_acc .user_info {
+    margin-top: 9.5rem;
+    flex: 1;
+    padding: 0;
+    color: #000000;
+    font-size: 1rem;
+    font-weight: 1000;
+    z-index: 2; /* Adjust the z-index based on the desired stacking order */
+}
+
+#popup_acc .user_info p {
+    margin: 0;
+}
+
+#popup_acc .user_info p.uName,
+#popup_acc .user_info p.uSRCode,
+#popup_acc .user_info p.uProgram {
+    margin-top: 3rem;
+   margin-left: -3rem;
+}
+#popup_acc .user_info p.uEmail{
+    margin-top: -10.5rem;
+    margin-left: 21.3rem;
+    margin-bottom: 3rem;
+}
+#popup_acc .user_info p.uID {
+   margin-bottom: 4rem;
+   margin-left: 21.3rem;
+}
+.logout-btn{
+    color: #ffffff;
+    background-color: #c71004;
+    padding: 4px;
+    width: 30%;
+    height: 2rem;
+    margin-left: 27rem;
+    bottom: 0;
+    border-radius: 2rem;
+    border: none;
+}
+.logout-btn:hover{
+    background-color: #f61909;
 }
 
 

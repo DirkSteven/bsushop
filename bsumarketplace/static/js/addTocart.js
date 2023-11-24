@@ -7,24 +7,22 @@ const closeCart = document.querySelector("#closeCart");
 
 cartIcon.addEventListener("click", () => {
     cart.classList.add("active");
-  });
-  
-  closeCart.addEventListener("click", () => {
+});
+
+closeCart.addEventListener("click", () => {
     cart.classList.remove("active");
-  });
-  
-  if (document.readyState == "loading") {
+});
+
+if (document.readyState == "loading") {
     document.addEventListener("DOMContentLoaded", start);
-  } else {
+} else {
     start();
 }
 
-// Declare a global variable to store cart items
 const cartItems = [];
 
-// Function to add an item to the cart
+
 function addItemToCart(productName, size, imageUrl) {
-    // Find the selected product
     const selectedProduct = products.find(p => p.name === productName);
 
     if (!selectedProduct) {
@@ -32,167 +30,179 @@ function addItemToCart(productName, size, imageUrl) {
         return;
     }
 
-    // Get the quantity from selectedProductInfo
-    const quantityInput = document.getElementById('quantity');
-    const quantity = parseInt(quantityInput.value, 10);
-    selectedProductInfo.quantity = quantity;
+    // const quantityInput = document.getElementById('quantity');
+    // const quantity = parseInt(quantityInput.value, 10);
+    // selectedProductInfo.quantity = quantity;
 
 
-    // Determine the price based on whether the product has sizes
-    const price = selectedProduct.hasSizes
-        ? selectedProduct.sizes[size].price.toFixed(2)
-        : selectedProduct.price.toFixed(2);
 
     const cartItem = {
-        title: productName,
-        price: `₱${price}`,
-        imgSrc: imageUrl,
+        name: productName,
+        price: price,
+        imgSrc: imageUrl,  // Pass the image_url directly
+        quantity: quantity,
         size: size,
-        quantity: quantity  // Use the quantity from selectedProductInfo
     };
 
-    // Check if the item is already in the cart
-    const existingItem = cartItems.find(item => item.title === productName && item.size === size);
+    const existingItem = cartItems.find(item => item.name === productName && item.size === size);
+    cartItems.push(cartItem);
+    updateCartDisplay();
+    updateItemCount(quantity);
+    updateTotal();
 
     if (existingItem) {
-        // If the item is already in the cart, update the quantity
         existingItem.quantity += quantity;
     } else {
-        // If the item is not in the cart, add it to the cart
         cartItems.push(cartItem);
     }
 
-    // Optionally, you can update the cart display here
     updateCartDisplay();
     updateItemCount(quantity);
-}
-function updateCartDisplay() {
-    // Get the cart container
-    const cartContainer = document.querySelector('.cart-content');
 
-    // Clear the existing content
+
+    // Debugging logs
+    console.log('Added item to cart:', cartItem);
+    console.log('Updated cart items:', cartItems);
+
+}
+
+function updateCartDisplay() {
+    const cartContainer = document.querySelector('.cart-content');
     cartContainer.innerHTML = '';
 
-    // Loop through the cart items and append them to the cart container
     cartItems.forEach(item => {
-        const cartBox = CartBoxComponent(item.title, item.price, item.imgSrc, item.size, item.quantity, item.hasSizes);
+        const cartBox = CartBoxComponent(item.name, item.price, item.imgSrc, item.size, item.quantity);
         cartContainer.innerHTML += cartBox;
     });
 
-    // Update the total price in the cart
     updateTotal();
 }
 
+function removeItemFromCart(productName, size) {
+    // Make a request to the server to remove the item from the cart
+    fetch('/remove_from_cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            productName: productName,
+            size: size,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message);
 
-// Function to remove an item from the cart
-function removeItemFromCart(title, size) {
-    // Find the index of the item in the cart
-    const index = cartItems.findIndex(item => item.title === title && item.size === size);
-
-    // Remove the item from the cart array
-    cartItems.splice(index, 1);
-
-    // Update the cart display
-    updateCartDisplay();
-    updateItemCount(-1);
+        // Update the cart display only if the item was successfully removed
+        if (data.success) {
+            updateCartDisplay();
+            updateItemCount(-1);
+        }
+    })
+    .catch(error => console.error('Error:', error));
 }
 
-function CartBoxComponent(title, price, imgSrc, size, quantity) {
-    const cartSize = size ? `${size}` : ' N/A'; // If size is falsy, set it to 'N/A'
+
+
+function CartBoxComponent(productName, price, imageUrl, size, quantity) {
+    console.log('Generated HTML imageUrl:', imageUrl);
+    // Replace backslashes with forward slashes in the image URL
+    
+    
+    // Calculate the total price for the item
+    const totalPrice = (parseFloat(price.replace(/[^0-9.-]+/g, '')) * quantity).toFixed(2);
+
+    // Use getImagePath to get the correct image path
+    
 
     return `
         <div class="prod-box" id="cart-box">
             <input type="checkbox" class="custom-checkbox">
-            <img src="${imgSrc}" alt="${title}" class="cart-img">
+            <img src="${imageUrl}" alt="${productName}" class="cart-img">
             <div class="detail-box">
-                <div class="cart-product-title">${title}</div>
-                <div class="cart-price">${price}</div>
+                <div class="cart-product-title">${productName}</div>
+                <div class="cart-price">Price: ${price}</div>
                 <div class="cart-size">
-                <label for="cartSize">Size: </label>
-                <div class="cart-size" id="cartSize">${cartSize}</div>
+                    <label for="cartSize">Size: </label>
+                    <div class="cart-size" id="cartSize">${size}</div>
+                    
+                    
                 </div>
                 <div class="cart-quantity"> Qty: ${quantity}</div>
+                <div class="cart-total">Total: ₱${totalPrice}</div>
             </div>
-            <i class='bx bxs-trash-alt cart-remove' onclick="removeItemFromCart('${title}', '${size}')"></i>
+            <i class='bx bxs-trash-alt cart-remove' onclick="removeItemFromCart('${productName}', '${size}')"></i>
         </div>`;
+        console.log('Generated HTML:', generatedHTML);
+        return generatedHTML;
 }
 
 
-// Function to initialize cart-related events
 function start() {
-    // Add event listeners for opening and closing the cart
     const cartIcon = document.querySelector("#cartIcon");
     const closeCart = document.querySelector("#closeCart");
 
     cartIcon.addEventListener("click", () => {
         cart.classList.add("active");
-        loadUserCart(); // Load user's cart when the cart is opened
+        loadUserCart();
     });
 
     closeCart.addEventListener("click", () => {
         cart.classList.remove("active");
     });
-
-    // Optionally, you can add more initialization code here
+    
 }
-function updateTotal() {
-    const totalElement = document.querySelector('.total-price');
 
+function updateTotal() {
+    console.log('Updating total...');
+
+    const totalElement = document.querySelector('.total-price');
     let total = 0;
 
-    // Calculate the total price based on cart items
     cartItems.forEach(item => {
-        const numericPrice = parseFloat(item.price.replace(/[^0-9.-]+/g,"")); // Remove non-numeric characters
+        const numericPrice = parseFloat(item.price.replace(/[^0-9.-]+/g, ''));
         total += numericPrice * item.quantity;
     });
 
-    // Display the total price in the cart
-    totalElement.textContent = ` ₱ ${total.toFixed(2)}`;
+    totalElement.textContent = `Total: ₱${total.toFixed(2)}`;
 }
+
 
 
 let itemCount = 0;
 
-function updateItemCount() {
-    // Create a Set to store unique item identifiers
-    const uniqueItems = new Set();
+function updateCartDisplay() {
+    const cartContainer = document.querySelector('.cart-content');
+    cartContainer.innerHTML = ''; // Clear the container before adding new items
 
-    // Count the number of unique items in the cart
     cartItems.forEach(item => {
-        const itemIdentifier = `${item.title}-${item.size}`;
-        uniqueItems.add(itemIdentifier);
+        const cartBox = CartBoxComponent(item.name, item.price, item.image_url, item.size, item.quantity);
+        const cartBoxElement = htmlToElement(cartBox);
+        cartContainer.appendChild(cartBoxElement);
     });
 
-    // Update the itemCount based on the number of unique items
-    itemCount = uniqueItems.size;
-
-    // Get the element where you want to display the item count
-    const itemCountElement = document.querySelector('#cart-ctr');
-
-    // Update the display with the new item count
-    itemCountElement.textContent = itemCount;
+    updateTotal();
 }
 
-
-
-// Check the document's ready state and call the start function accordingly
-if (document.readyState == "loading") {
-    document.addEventListener("DOMContentLoaded", start);
-} else {
-    start();
+function htmlToElement(html) {
+    const template = document.createElement('template');
+    html = html.trim();
+    template.innerHTML = html;
+    return template.content.firstChild;
 }
-
 
 document.addEventListener('DOMContentLoaded', function () {
     const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
 
     addToCartButtons.forEach((button) => {
         button.addEventListener('click', function () {
-            // Retrieve product details from the clicked button or customize as needed
             const productName = button.dataset.productName;
             const productPrice = button.dataset.productPrice;
+            const size = button.dataset.size; // Assuming size is stored in a 'data-size' attribute
 
-            // Create a new element to represent the added item
+            addItemToCart(productName, size, productPrice); // Pass the size parameter
+
             const newItem = document.createElement('div');
             newItem.classList.add('cart-item');
             newItem.innerHTML = `
@@ -200,11 +210,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 <span>${productPrice}</span>
             `;
 
-            // Append the new item to the cart content
             const cartContent = document.querySelector('.cart-content');
             cartContent.appendChild(newItem);
 
-            // Update the cart count
             const cartCounter = document.getElementById('cart-ctr');
             cartCounter.innerText = parseInt(cartCounter.innerText) + 1;
         });
@@ -212,29 +220,58 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function loadUserCart() {
-    // Make an AJAX request to fetch the user's cart data from the server
+    console.log('Attempting to load user cart...');
+
     fetch('/get_user_cart')
         .then(response => response.json())
         .then(data => {
-            // Update the client-side cart with the fetched data
-            cartItems = data.cartItems || [];  // This line might be causing the error
+            console.log('Received data from server:', data);
+            userCarts = data.cartIds || [];
+
+            const newCartItems = data.cartItems || [];
+
+            console.log('New cart items:', newCartItems);
+
+            cartItems.length = 0;
+
+            newCartItems.forEach(item => {
+                console.log('Original item:', item);
+
+                // Ensure the first letter is capitalized
+                if (item.image_url) {
+                    item.image_url = item.image_url.replace(/\\/g, '/').replace(/\/([^\/]*)$/, (_, match) => `/${match.charAt(0).toUpperCase()}${match.slice(1).toLowerCase()}`);
+                }
+
+                console.log('Formatted item:', item);
+            });
+
+            Array.prototype.push.apply(cartItems, newCartItems);
+
+            console.log('Updated cart items:', cartItems);
+
             updateCartDisplay();
             updateItemCount();
+            updateTotal();
+
+
+            user_cart = newCartItems;
+            sessionStorage.setItem('user_cart', JSON.stringify(user_cart));
+
+            console.log('User cart loaded successfully.');
         })
         .catch(error => console.error('Error:', error));
 }
 
-// Call the loadUserCart function when the user logs in
-// (You might need to trigger this based on your login implementation)
+console.log('Received data from server:', data);
+
+
 loadUserCart();
-
-sessionStorage.setItem('user_cart', JSON.stringify(user_cart));
-
-// Retrieve cart data from session storage
-const user_cart = JSON.parse(sessionStorage.getItem('user_cart')) || [];
-
 
 document.cookie = 'cart_id=unique_cart_identifier; path=/';
 
-// Retrieve cart_id from cookies
 const cartId = document.cookie.split('; ').find(row => row.startsWith('cart_id=')).split('=')[1];
+
+
+
+
+

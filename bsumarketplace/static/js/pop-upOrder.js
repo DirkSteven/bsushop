@@ -1,5 +1,3 @@
-
-
 // Declare a global variable to store selected product information
 
 
@@ -121,32 +119,35 @@ console.log('Product Price:', price);
 }
 
 function updateTotal() {
-    const sizeSelect = document.getElementById('size');
+    const quantityInput = document.getElementById('quantity');
+    const quantity = parseInt(quantityInput.value, 10);
+    const price = selectedProductInfo.price;
+    
+    const total = quantity * price;
+    
+    // Update the total price in the HTML
+    const totalPriceElement = document.getElementById('totalPrice');
+    totalPriceElement.textContent = total;
+    
+    // Update the stock count based on the selected size
+    const selectedSize = document.getElementById('size').value;
     const stockCountElement = document.getElementById('stockCount');
-
-    console.log('Selected Product Info:', selectedProductInfo);
-    console.log('Size Select Value:', sizeSelect.value);
-
-    if (selectedProductInfo.variants && selectedProductInfo.variants.length > 0) {
-        if (!selectedProductInfo.variants[0].size) {
-            // For items without a size (e.g., tote bag), display the stock directly
-            stockCountElement.textContent = selectedProductInfo.variants[0].stock || 'Not available';
-        } else {
-            // For items with a size, update the stock information based on the selected size
-            stockCountElement.textContent = getStockForSize(selectedProductInfo.variants, sizeSelect.value);
-        }
-    } else {
-        // Handle the case where variants are not available or empty
-        stockCountElement.textContent = 'Not available';
-    }
+    stockCountElement.textContent = getStockForSize(selectedProductInfo.variants, selectedSize);
 }
+
 
 function getStockForSize(variants, selectedSize) {
     const selectedVariant = variants.find(variant => variant.size === selectedSize);
     return selectedVariant ? selectedVariant.stock || 'Not available' : 'Not available';
 }
 
-function addToCart() {
+console.log('Selected Product Info:', selectedProductInfo);
+
+
+
+
+function addToCart(name, size) {
+    console.log('Adding to cart:', selectedProductInfo.name);
     // Check if the user is logged in
     fetch('/check_login_status', {
         method: 'GET',
@@ -158,13 +159,18 @@ function addToCart() {
     .then(data => {
         console.log('Check Login Status:', data);
 
+        const quantityInput = document.getElementById('quantity');
+selectedProductInfo.quantity = parseInt(quantityInput.value, 10);
+
         if (data.logged_in) {
             // User is logged in, proceed to add to cart
             const cartData = {
                 user_id: data.user_id,
                 product_id: selectedProductInfo.product_id,
                 quantity: selectedProductInfo.quantity,
+                selected_size: document.getElementById('size').value,  // Include selected_size
             };
+            
 
             fetch('/add_to_cart', {
                 method: 'POST',
@@ -180,6 +186,7 @@ function addToCart() {
 
                 // Display flash alert for Item Added to Cart within the popup
                 displayFlash('Item Added to Cart', 'success');
+                
             })
             .catch(error => console.error('Error:', error));
         } else {
@@ -187,6 +194,9 @@ function addToCart() {
             displayFlash('Please log in to Add to Cart', 'warning');
         }
     })
+
+
+    
     .catch(error => console.error('Error:', error));
 }
 
@@ -222,12 +232,10 @@ function displayFlash(message, category) {
     // Automatically remove the flash message after a certain duration (e.g., 5 seconds)
     setTimeout(() => {
         flashMessage.remove();
-    }, 1000); // Adjust the duration as needed
+    }, 200); // Adjust the duration as needed
 }
 
 function closePopup() {
     const popup = document.getElementById('popup');
     popup.style.display = 'none';
 }
-
-
