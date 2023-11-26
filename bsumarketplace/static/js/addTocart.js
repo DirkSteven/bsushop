@@ -22,7 +22,7 @@ if (document.readyState == "loading") {
 const cartItems = [];
 
 
-function addItemToCart(productName, size, imageUrl) {
+function addItemToCart(productName, size, imageUrl, removeFromCart = true) {
     const selectedProduct = products.find(p => p.name === productName);
 
     if (!selectedProduct) {
@@ -33,6 +33,8 @@ function addItemToCart(productName, size, imageUrl) {
     // const quantityInput = document.getElementById('quantity');
     // const quantity = parseInt(quantityInput.value, 10);
     // selectedProductInfo.quantity = quantity;
+
+    const quantity = 1;
 
 
 
@@ -45,20 +47,17 @@ function addItemToCart(productName, size, imageUrl) {
     };
 
     const existingItem = cartItems.find(item => item.name === productName && item.size === size);
-    cartItems.push(cartItem);
-    updateCartDisplay();
-    updateItemCount(quantity);
-    updateTotal();
 
     if (existingItem) {
         existingItem.quantity += quantity;
     } else {
         cartItems.push(cartItem);
     }
-
-    updateCartDisplay();
-    updateItemCount(quantity);
-
+    if (removeFromCart) {
+        removeItemFromCart(productName, size);
+    }
+    updateItemCount(1);
+    displayTotalPrice();
 
     // Debugging logs
     console.log('Added item to cart:', cartItem);
@@ -75,7 +74,7 @@ function updateCartDisplay() {
         cartContainer.innerHTML += cartBox;
     });
 
-    updateTotal();
+    resolve();
 }
 
 function removeItemFromCart(productName, size) {
@@ -96,8 +95,20 @@ function removeItemFromCart(productName, size) {
 
         // Update the cart display only if the item was successfully removed
         if (data.success) {
-            updateCartDisplay();
-            updateItemCount(-1);
+            const indexToRemove = cartItems.findIndex(item => item.name === productName && item.size === size);
+
+            if (indexToRemove !== -1) {
+                cartItems.splice(indexToRemove, 1);
+                updateCartDisplay();
+                updateItemCount();
+                displayTotalPrice();
+                console.log('Item removed from cart:', { productName, size });
+
+            } else {
+                console.error('Error removing item from cart:', 'Item not found in cartItems array');
+            }
+        } else {
+            console.error('Error removing item from cart:', data.message);
         }
     })
     .catch(error => console.error('Error:', error));
@@ -147,12 +158,13 @@ function start() {
 
     cartIcon.addEventListener("click", () => {
         cart.classList.add("active");
-        loadUserCart();
     });
 
     closeCart.addEventListener("click", () => {
         cart.classList.remove("active");
     });
+    const checkboxes = document.querySelectorAll('.custom-checkbox');
+    console.log('Number of checkboxes:', checkboxes.length);
     
 }
 
@@ -196,29 +208,29 @@ function htmlToElement(html) {
 
 document.addEventListener('DOMContentLoaded', function () {
     const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
-
     addToCartButtons.forEach((button) => {
         button.addEventListener('click', function () {
             const productName = button.dataset.productName;
             const productPrice = button.dataset.productPrice;
             const size = button.dataset.size; // Assuming size is stored in a 'data-size' attribute
-
             addItemToCart(productName, size, productPrice); // Pass the size parameter
-
             const newItem = document.createElement('div');
             newItem.classList.add('cart-item');
             newItem.innerHTML = `
                 <span>${productName}</span>
                 <span>${productPrice}</span>
             `;
-
             const cartContent = document.querySelector('.cart-content');
             cartContent.appendChild(newItem);
-
             const cartCounter = document.getElementById('cart-ctr');
             cartCounter.innerText = parseInt(cartCounter.innerText) + 1;
         });
     });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Call loadUserCart to fetch cart data from the server
+    loadUserCart();
 });
 
 function loadUserCart() {
@@ -254,6 +266,7 @@ function loadUserCart() {
             updateCartDisplay();
             updateItemCount();
             updateTotal();
+            displayTotalPrice();
 
 
             user_cart = newCartItems;
@@ -264,6 +277,10 @@ function loadUserCart() {
         .catch(error => console.error('Error:', error));
 }
 
+
+function updateItemCount() {
+    // Create a Set to store unique item identifiers
+    const uniqueItems = new Set();
 
 function saveOrderToServer(title, price, imgSrc, size, quantity, product_id) {
     fetch('/save_order', {
@@ -286,12 +303,76 @@ function saveOrderToServer(title, price, imgSrc, size, quantity, product_id) {
         // Handle the response as needed
     })
     .catch(error => console.error('Error:', error));
+    // Count the number of unique items in the cart
+    cartItems.forEach(item => {
+        const itemIdentifier = `${item.name}-${item.size}`;
+        uniqueItems.add(itemIdentifier);
+    });
+
+    // Update the itemCount based on the number of unique items
+    itemCount = uniqueItems.size;
+
+    // Get the element where you want to display the item count
+    const itemCountElement = document.querySelector('#cart-ctr');
+
+    // Update the display with the new item count
+    itemCountElement.textContent = itemCount;
 }
+// Function to initialize the cart
+function initializeCart() {
+    // Use event delegation for checkboxes
+    const cartContainer = document.querySelector('.cart-content');
+
+    cartContainer.addEventListener('change', (event) => {
+        if (event.target.classList.contains('custom-checkbox')) {
+            displayTotalPrice();
+        }
+    });
+
+    // Call the displayTotalPrice function after updating the cart display
+    updateCartDisplay();
+    displayTotalPrice();
+}
+function displayTotalPrice() {
+    const cartTotalElement = document.querySelector('.total-price');
+    let totalAmount = 0;
+
+    // Get all checkboxes
+    const checkboxes = document.querySelectorAll('.custom-checkbox');
+
+    cartItems.forEach((item, index) => {
+        // Check if the corresponding checkbox is checked
+        if (checkboxes[index].checked) {
+            // Calculate the total price for each checked item and add it to the totalAmount
+            totalAmount += parseFloat(item.price) * item.quantity;
+        }
+    });
+
+    // Update the display with the total price
+    cartTotalElement.textContent = ` ₱${totalAmount.toFixed(2)}`;
+}
+
+// Attach the displayTotalPrice function to the change event of checkboxes
+const checkboxes = document.querySelectorAll('.custom-checkbox');
+checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+        displayTotalPrice();
+    });
+});
+}
+
+initializeCart();
 
 console.log('Received data from server:', data);
 
+document.addEventListener('DOMContentLoaded', function () {
+    loadUserCart(); // Fetch cart data from the server
 
 loadUserCart();
+    // Update cart display and item count after loading the cart data
+    updateCartDisplay();
+    updateItemCount();
+});
 
 document.cookie = 'cart_id=unique_cart_identifier; path=/';
 

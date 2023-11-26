@@ -7,6 +7,7 @@ from bsumarketplace.forms import RegistrationForm, LoginForm
 from bsumarketplace.models import User, Product, Category, ProductVariant, Cart, Order
 from datetime import datetime
 import re
+from sqlalchemy.exc import IntegrityError
 
 @app.route('/')
 @app.route('/index')
@@ -141,10 +142,25 @@ def add_to_cart():
     selected_size = data.get('selected_size', None)
 
     # Add the selected product to the user's cart along with the selected size
-    cart_item = Cart(user_id=user_id, product_id=data['product_id'], quantity=data['quantity'], selected_size=selected_size)
-    db.session.add(cart_item)
-    print ("Item Added to Cart", cart_item)
-    db.session.commit()
+    existing_cart_item = Cart.query.filter_by(user_id=user_id, product_id=data['product_id'], selected_size=selected_size).first()
+
+    if existing_cart_item:
+        # Update the quantity if the item already exists
+        existing_cart_item.quantity += data['quantity']
+        db.session.commit()
+        print("Item quantity updated in the cart:", existing_cart_item)
+    else:
+        # Add the selected product to the user's cart along with the selected size
+        cart_item = Cart(user_id=user_id, product_id=data['product_id'], quantity=data['quantity'], selected_size=selected_size)
+        db.session.add(cart_item)
+
+        try:
+            db.session.commit()
+            print("Item added to the cart:", cart_item)
+        except IntegrityError:
+            # Handle IntegrityError in case of concurrent requests trying to add the same item simultaneously
+            db.session.rollback()
+            print("IntegrityError: Item already exists in the cart for the current user.")
 
     return jsonify({'message': 'Added to cart successfully'})
 

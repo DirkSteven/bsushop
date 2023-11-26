@@ -90,10 +90,10 @@
    <!-- TOTAL   -->
    <div class="total">
        <div class="total-title">Cart Total:</div>
-       <div class="total-price"> "INSERT TOTAL HERE"</div>
+       <div class="total-price"></div>
    </div>
    <!-- BUY BUTTON  -->
-   <button type="button" class="btn-buy" id="buyNowButton">BUY NOW</button>
+   <button type="button" class="btn-buy" id="buyNowButton" onclick="handleBuyNow();removeItemFromCart(productName,size);">BUY NOW</button>
    <!-- CART CLOSE  -->
    <i class='bx bx-x close' id="closeCart"></i>
 </div>

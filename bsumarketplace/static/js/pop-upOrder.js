@@ -81,7 +81,7 @@ console.log('Product Price:', price);
             <p class="total">Total: ₱ <span id="totalPrice">${selectedProductInfo.price}</span></p>
         </div>
         <div class="button-container">
-            <button class="cart-button" onclick="addToCart()">Add to Cart</button>
+        <button class="cart-button" onclick="addToCart('${selectedProductInfo.name}')">Add to Cart</button>
             <button class="buy-now-button" onclick="buyNow()">Buy Now</button>
         </div>
     `;
@@ -183,15 +183,19 @@ selectedProductInfo.quantity = parseInt(quantityInput.value, 10);
             .then(data => {
                 // Process the response from the server
                 console.log('Added to Cart:', data);
+                updateCartDisplay();
+                updateItemCount(+1);
+                updateTotal();
+                loadUserCart();
 
                 // Display flash alert for Item Added to Cart within the popup
-                displayFlash('Item Added to Cart', 'success');
+                displayFlash('Item Added to Cart', 'success', 1000);
                 
             })
             .catch(error => console.error('Error:', error));
         } else {
             // User is not logged in, display flash alert within the popup
-            displayFlash('Please log in to Add to Cart', 'warning');
+            displayFlash('Please log in to Add to Cart', 'warning', 1000);
         }
     })
 
