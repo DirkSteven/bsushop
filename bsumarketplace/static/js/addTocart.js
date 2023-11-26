@@ -108,6 +108,7 @@ function removeItemFromCart(productName, size) {
 function CartBoxComponent(productName, price, imageUrl, size, quantity) {
     console.log('Generated HTML imageUrl:', imageUrl);
     // Replace backslashes with forward slashes in the image URL
+    console.log (size)
     
     
     // Calculate the total price for the item
@@ -126,6 +127,7 @@ function CartBoxComponent(productName, price, imageUrl, size, quantity) {
                 <div class="cart-size">
                     <label for="cartSize">Size: </label>
                     <div class="cart-size" id="cartSize">${size}</div>
+                    
                     
                     
                 </div>
@@ -262,6 +264,30 @@ function loadUserCart() {
         .catch(error => console.error('Error:', error));
 }
 
+
+function saveOrderToServer(title, price, imgSrc, size, quantity, product_id) {
+    fetch('/save_order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            productName: title,
+            price: price,
+            imgSrc: imgSrc,
+            size: size,
+            quantity: quantity,
+            product_id: product_id,  // Add the product_id to the data
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message);
+        // Handle the response as needed
+    })
+    .catch(error => console.error('Error:', error));
+}
+
 console.log('Received data from server:', data);
 
 
@@ -270,7 +296,6 @@ loadUserCart();
 document.cookie = 'cart_id=unique_cart_identifier; path=/';
 
 const cartId = document.cookie.split('; ').find(row => row.startsWith('cart_id=')).split('=')[1];
-
 
 
 

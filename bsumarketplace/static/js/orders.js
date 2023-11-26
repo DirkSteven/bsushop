@@ -4,7 +4,8 @@ const closeOrder = document.querySelector("#closeOrder");
 
 
 ordersIcon.addEventListener("click", () => {
-    order.classList.add("active");
+    console.log("Icon clicked"); // Check if the icon click event is firing
+    fetchOrdersAndUpdateOrderContent();
 });
 
 closeOrder.addEventListener("click", () => {
@@ -14,33 +15,57 @@ closeOrder.addEventListener("click", () => {
 // Assuming you have a "Buy Now" button with class "btn-buy"
 const buyNowButton = document.querySelector(".btn-buy");
 
-buyNowButton.addEventListener("click", () => {
-    // Find all checked checkboxes in the cart
-    const checkedCheckboxes = document.querySelectorAll('.custom-checkbox:checked');
+document.addEventListener('DOMContentLoaded', function () {
+    const buyNowButton = document.getElementById('buyNowButton');
+    
 
-    // Move checked items to the order tab
-    checkedCheckboxes.forEach(checkbox => {
-        const cartBox = checkbox.closest('#cart-box');
-        const cartContainer = document.querySelector('.cart-content'); // Assuming this is the cart container
+    buyNowButton.addEventListener('click', function () {
+        // Find all checked checkboxes in the cart
+        const checkedCheckboxes = document.querySelectorAll('.custom-checkbox:checked');
 
-        // Get item details from the cart box
-        const title = cartBox.querySelector('.cart-product-title').textContent;
-        const price = cartBox.querySelector('.cart-price').textContent;
-        const imgSrc = cartBox.querySelector('.cart-img').getAttribute('src');
-        const size = cartBox.querySelector('.cart-size').textContent;
-        const quantity = parseInt(cartBox.querySelector('.cart-quantity').textContent.split(' ')[2]); // Extract quantity
+        // Prepare an array to store the selected products
+        const selectedProducts = [];
 
-        // Add the item to the order tab
-        const orderBox = OrderBoxComponent(title, price, imgSrc, size, quantity);
-        order.querySelector('.order-content').appendChild(orderBox);
+        checkedCheckboxes.forEach(checkbox => {
+            const cartBox = checkbox.closest('#cart-box');
+            const title = cartBox.querySelector('.cart-product-title').textContent;
+            // Extract the size value using a regular expression
+            const sizeElement = cartBox.querySelector('.cart-size');
+            const sizeMatch = sizeElement ? sizeElement.textContent.match(/Size:\s*([\s\S]+)/) : null;
+            const size = sizeMatch ? sizeMatch[1].trim() : '';
+            const quantity = parseInt(cartBox.querySelector('.cart-quantity').textContent.split(' ')[2]);
 
-        // Remove the item from the cart
-        removeItemFromCart(title, size);
-       
+            // Add the selected product details to the array
+            selectedProducts.push({
+                title: title,
+                size: size,
+                quantity: quantity,
+            });
+        });
+
+        console.log ('Selected Products are', selectedProducts)
+
+        // Make a POST request to the server to store the selected products
+        fetch('/buy_now', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ selectedProducts: selectedProducts }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message);
+            // Optionally, update the UI or perform other actions based on the server response
+        })
+        .catch(error => console.error('Error:', error));
     });
-  
-    updateOrderCount(1);
 });
+
+
+
+
+
 
 function addToOrderTab() {
     // Assuming selectedProductInfo is a global variable
@@ -92,6 +117,7 @@ function addToOrderTab() {
 
 function OrderBoxComponent(title, price, imgSrc, size, quantity) {
     const orderSize = size ? `${size}` : 'Size: N/A'; // If size is falsy, set it to 'N/A'
+    
   
     // Ensure the price is properly formatted as a number
     const numericPrice = parseFloat(price.replace(/[^\d.-]/g, ''));
@@ -143,17 +169,60 @@ document.addEventListener('DOMContentLoaded', function () {
     const orderContent = document.querySelector('.order-content');
 
     viewOrdersButton.addEventListener('click', function () {
-        // You can fetch orders from the server and update the order content dynamically
-        // For now, let's simulate a sample order
-        const orderItem = document.createElement('div');
-        orderItem.classList.add('order-item');
-        orderItem.innerHTML = `
-            <span>Product 1</span>
-            <span>Quantity: 2</span>
-            <span>Total: $25.00</span>
-        `;
-
-        // Append the order item to the order content
-        orderContent.appendChild(orderItem);
+        // Fetch orders from the server and update the order content dynamically
+        fetch('/get_orders')
+            .then(response => response.json())
+            .then(data => {
+                // Clear existing order content
+                orderContent.innerHTML = '';
+    
+                // Loop through the fetched orders and create order items
+                data.orders.forEach(order => {
+                    const orderItem = document.createElement('div');
+                    orderItem.classList.add('order-item');
+                    orderItem.innerHTML = `
+                        <span>Product ID: ${order.product_id}</span>
+                        <span>Quantity: ${order.order_quantity}</span>
+                        <span>Total: ₱${order.order_total.toFixed(2)}</span>
+                        <span>Size: ${order.order_size}</span>
+                        <span>Date Purchased: ${order.date_purchase}</span>
+                    `;
+    
+                    // Append the order item to the order content
+                    orderContent.appendChild(orderItem);
+                });
+            })
+            .catch(error => console.error('Error fetching orders:', error));
     });
 });
+
+
+function fetchOrdersAndUpdateOrderContent() {
+    fetch('/get_orders')
+        .then(response => response.json())
+        .then(data => {
+            const orderContent = document.querySelector('.order-content');
+            // Clear existing order content
+            orderContent.innerHTML = '';
+
+            // Loop through the fetched orders and create order boxes using OrderBoxComponent
+            data.orders.forEach(order => {
+                const imagePath = `static/img/${order.product_name}.png`;
+                const orderBox = OrderBoxComponent(
+                    order.product_name,
+                    `₱${order.order_total.toFixed(2)}`,
+                    imagePath, // Replace with the actual path or URL of the product image
+                    order.order_size,
+                    order.order_quantity,
+                    order.date_purchase
+                );
+
+                // Append the order box to the order content
+                orderContent.appendChild(orderBox);
+            });
+
+            // Display the order tab
+            order.classList.add("active");
+        })
+        .catch(error => console.error('Error fetching orders:', error));
+}

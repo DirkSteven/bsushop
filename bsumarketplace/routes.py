@@ -4,7 +4,9 @@ from flask import render_template, url_for, flash, redirect, request, session, g
 from flask_login import current_user, login_user, logout_user, login_required
 from bsumarketplace import app, db, bcrypt
 from bsumarketplace.forms import RegistrationForm, LoginForm
-from bsumarketplace.models import User, Product, Category, ProductVariant, Cart
+from bsumarketplace.models import User, Product, Category, ProductVariant, Cart, Order
+from datetime import datetime
+import re
 
 @app.route('/')
 @app.route('/index')
@@ -36,26 +38,6 @@ def index():
     for product in org_merch_products:
         variants = ProductVariant.query.filter_by(product=product).all()
         org_merch_variants[product.id] = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
-
-
-      #Print stocks and sizes for each product in the console
-    # for product_id, variants in uniform_variants.items():
-    #      product = Product.query.get(product_id)
-    #      print(f"Uniform Product: {product.name}")
-    #      for variant in variants:
-    #          print(f"Size: {variant['size']}, Stock: {variant['stock']}")
-
-    # for product_id, variants in univ_merch_variants.items():
-    #      product = Product.query.get(product_id)
-    #      print(f"UnivMerch Product: {product.name}")
-    #      for variant in variants:
-    #          print(f"Size: {variant['size']}, Stock: {variant['stock']}")
-
-    # for product_id, variants in org_merch_variants.items():
-    #      product = Product.query.get(product_id)
-    #      print(f"OrgMerch Product: {product.name}")
-    #      for variant in variants:
-    #          print(f"Size: {variant['size']}, Stock: {variant['stock']}")
 
     #  Render the template with the fetched data
     return render_template('index.html',
@@ -166,14 +148,6 @@ def add_to_cart():
 
     return jsonify({'message': 'Added to cart successfully'})
 
-@app.route('/buy_now', methods=['POST'])
-def buy_now():
-    # Example: Handle the "Buy Now" action based on the data received
-    data = request.get_json()
-    # Add logic to handle the "Buy Now" action (e.g., redirect to a checkout page)
-    print('Buy Now:', data)
-    return jsonify({'message': 'Buy Now successful'})
-
 
 @app.route('/check_login_status', methods=['GET'])
 def check_login_status():
@@ -222,9 +196,7 @@ def get_user_cart():
 
 @app.route('/get_variant_data/<int:product_id>', methods=['GET'])
 def get_variant_data(product_id):
-    # Fetch variant data based on the product ID from the database
-    # Return the data as a JSON response
-    # Modify this based on your actual data structure
+
     variants = ProductVariant.query.filter_by(product_id=product_id).all()
     variant_data = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
     # print (variant_data)
@@ -261,3 +233,128 @@ def remove_from_cart():
     else:
         print(f"Product not found. Product Name: {product_name}")
         return jsonify({'success': False, 'message': 'Product not found'})
+    
+
+
+@app.route('/buy_now', methods=['POST'])
+@login_required
+def buy_now():
+    data = request.get_json()
+
+    # Assuming you have a function to process and store the selected products in the database
+    success = process_and_store_selected_products(current_user.id, data.get('selectedProducts', []))
+    delete_cart_items(current_user.id, data.get('selectedProducts', []))
+
+    if success:
+        update_product_variant_stock(data.get('selectedProducts', []))
+        return jsonify({'message': 'Selected products stored successfully'})
+    else:
+        return jsonify({'message': 'Failed to store selected products'})
+
+# Add the necessary logic to process and store the selected products in the database
+def process_and_store_selected_products(user_id, selected_products):
+    try:
+        for product in selected_products:
+
+            
+            order = Order(
+                user_id=user_id,
+                product_id=get_product_id_by_title(product['title']),
+                order_quantity=product['quantity'],
+                order_size=product['size'],
+                order_total=calculate_order_total(product['title'], product['quantity'])
+            )
+
+            db.session.add(order)
+            print(order.order_size)
+
+        db.session.commit()
+        return True
+    except Exception as e:
+        print(f"Error processing and storing selected products: {str(e)}")
+        db.session.rollback()
+        return False
+    
+
+def update_product_variant_stock(selected_products):
+    try:
+        for product in selected_products:
+            # Assuming product['title'] is the product name
+            product_id = get_product_id_by_title(product['title'])
+            size = product['size']
+            quantity = product['quantity']
+
+            # Fetch the corresponding ProductVariant and update the stock
+            product_variant = ProductVariant.query.filter_by(product_id=product_id, size=size).first()
+            
+            if product_variant:
+                # Ensure the stock doesn't go below 0
+                new_stock = max(0, product_variant.stock - quantity)
+                product_variant.stock = new_stock
+
+        db.session.commit()
+    except Exception as e:
+        print(f"Error updating product variant stock: {str(e)}")
+        db.session.rollback()
+
+
+
+def get_product_id_by_title(product_title):
+    product = Product.query.filter_by(name=product_title).first()
+    if product:
+        return product.id
+    else:
+        raise ValueError(f"Product with title '{product_title}' not found.")
+    
+
+def calculate_order_total(product_title, quantity):
+    product = Product.query.filter_by(name=product_title).first()
+    if product:
+        return product.price * quantity
+    else:
+        raise ValueError(f"Product with title '{product_title}' not found.")
+    
+
+def delete_cart_items(user_id, selected_products):
+    try:
+        for product in selected_products:
+            product_id = get_product_id_by_title(product['title'])
+            size = product['size']
+
+            # Delete only the specific cart item that matches the product and size
+            cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id, selected_size=size).first()
+
+            if cart_item:
+                db.session.delete(cart_item)
+
+        db.session.commit()
+    except Exception as e:
+        print(f"Error deleting cart items: {str(e)}")
+        db.session.rollback()
+    
+
+@app.route('/get_orders', methods=['GET'])
+@login_required
+def get_orders():
+    try:
+        # Fetch orders for the current user from the database
+        user_orders = Order.query.filter_by(user_id=current_user.id).all()
+
+        # Convert user_orders to a list of dictionaries for JSON serialization
+        orders_data = []
+        for order in user_orders:
+
+            product = Product.query.get(order.product_id)
+            orders_data.append({
+                'product_name': product.name,
+                'order_quantity': order.order_quantity,
+                'order_size': order.order_size,
+                'order_total': float(order.order_total),  # Convert to float for JSON serialization
+                'date_purchase': order.date_purchase.strftime("%Y-%m-%d %H:%M:%S")
+            })
+
+        return jsonify({'orders': orders_data})
+
+    except Exception as e:
+        print(f"Error fetching orders: {str(e)}")
+        return jsonify({'error': 'Failed to fetch orders'}), 500  # 500 Internal Server Error
