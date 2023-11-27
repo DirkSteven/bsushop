@@ -56,16 +56,16 @@ console.log('Product Price:', price);
             console.warn('No variants available for the product');
         }
     
-    productDetails.innerHTML = `
+        productDetails.innerHTML = `
         <div class="product-info-container">
             <div class="product-details">
                 <h3 class="productname">${selectedProductInfo.name}</h3>
                 <img src="${selectedProductInfo.imageUrl}" alt="${selectedProductInfo.name}" class="popupImage">
+                <img src="static/img/name_price.png" alt="Additional Image" class="additionalImage">
                 <p class="description">${selectedProductInfo.description}</p>
             </div>
-
+            <p class="pop_price">₱ ${selectedProductInfo.price}</p>
             <div class="price-quantity">
-                <p class="price">₱ ${selectedProductInfo.price}</p>
                 
                 <label for="size">Size:</label>
                 <select id="size" name="size" onchange="updateTotal()">
@@ -82,7 +82,13 @@ console.log('Product Price:', price);
         </div>
         <div class="button-container">
         <button class="cart-button" onclick="addToCart('${selectedProductInfo.name}')">Add to Cart</button>
-            <button class="buy-now-button" onclick="buyNow()">Buy Now</button>
+
+        <div class="rating-container" id="rating-container">
+        <span class="star" data-rating="1">&#9733;</span>
+        <span class="star" data-rating="2">&#9733;</span>
+        <span class="star" data-rating="3">&#9733;</span>
+        <span class="star" data-rating="4">&#9733;</span>
+        <span class="star" data-rating="5">&#9733;</span>
         </div>
     `;
 
@@ -189,13 +195,15 @@ selectedProductInfo.quantity = parseInt(quantityInput.value, 10);
                 loadUserCart();
 
                 // Display flash alert for Item Added to Cart within the popup
-                displayFlash('Item Added to Cart', 'success', 1000);
-                
+                alert('Item Added to Cart', 'success');
+                const cartIcon = document.querySelector("#cartIcon");
+                cartIcon.click();
             })
             .catch(error => console.error('Error:', error));
         } else {
             // User is not logged in, display flash alert within the popup
-            displayFlash('Please log in to Add to Cart', 'warning', 1000);
+            alert('Please log in to Add to Cart', 'warning');
+            window.location.href='/login'
         }
     })
 
@@ -238,6 +246,48 @@ function displayFlash(message, category) {
         flashMessage.remove();
     }, 200); // Adjust the duration as needed
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const stars = document.querySelectorAll('.star');
+    const ratingContainer = document.getElementById('rating-container');
+
+    stars.forEach((star) => {
+        star.addEventListener('click', () => {
+            const ratingValue = star.getAttribute('data-rating');
+            setRating(ratingValue);
+        });
+
+        star.addEventListener('mouseover', () => {
+            const ratingValue = star.getAttribute('data-rating');
+            highlightStars(ratingValue);
+        });
+
+        star.addEventListener('mouseout', () => {
+            resetStars();
+        });
+    });
+
+    function setRating(rating) {
+        resetStars();
+        for (let i = 0; i < rating; i++) {
+            stars[i].classList.add('active');
+        }
+        // You can send the rating to the server or perform any other necessary actions here
+    }
+
+    function highlightStars(rating) {
+        resetStars();
+        for (let i = 0; i < rating; i++) {
+            stars[i].classList.add('active');
+        }
+    }
+
+    function resetStars() {
+        stars.forEach((star) => {
+            star.classList.remove('active');
+        });
+    }
+});
 
 function closePopup_product() {
     const popup = document.getElementById('popup');

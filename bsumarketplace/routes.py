@@ -352,6 +352,8 @@ def delete_cart_items(user_id, selected_products):
 @app.route('/get_orders', methods=['GET'])
 @login_required
 def get_orders():
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'Please Login'}), 40
     try:
         # Fetch orders for the current user from the database
         user_orders = Order.query.filter_by(user_id=current_user.id).all()

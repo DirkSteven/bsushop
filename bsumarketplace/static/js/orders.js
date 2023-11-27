@@ -17,7 +17,6 @@ closeOrder.addEventListener("click", () => {
 
 document.addEventListener('DOMContentLoaded', function () {
     const buyNowButton = document.querySelector(".btn-buy");
-    
 
     buyNowButton.addEventListener('click', function () {
         // Find all checked checkboxes in the cart
@@ -33,50 +32,51 @@ document.addEventListener('DOMContentLoaded', function () {
         // Show a confirmation dialog before moving items to the order tab
         const confirmBuyNow = confirm("Are you sure you want to buy the selected items?");
         if (confirmBuyNow) {
+            checkedCheckboxes.forEach(checkbox => {
+                const cartBox = checkbox.closest('#cart-box');
+                const title = cartBox.querySelector('.cart-product-title').textContent;
+                // Extract the size value using a regular expression
+                const sizeElement = cartBox.querySelector('.cart-size');
+                const sizeMatch = sizeElement ? sizeElement.textContent.match(/Size:\s*([\s\S]+)/) : null;
+                const size = sizeMatch ? sizeMatch[1].trim() : '';
+                const quantity = parseInt(cartBox.querySelector('.cart-quantity').textContent.split(' ')[2]);
 
-        checkedCheckboxes.forEach(checkbox => {
-            const cartBox = checkbox.closest('#cart-box');
-            const title = cartBox.querySelector('.cart-product-title').textContent;
-            // Extract the size value using a regular expression
-            const sizeElement = cartBox.querySelector('.cart-size');
-            const sizeMatch = sizeElement ? sizeElement.textContent.match(/Size:\s*([\s\S]+)/) : null;
-            const size = sizeMatch ? sizeMatch[1].trim() : '';
-            const quantity = parseInt(cartBox.querySelector('.cart-quantity').textContent.split(' ')[2]);
-
-            // Add the selected product details to the array
-            selectedProducts.push({
-                title: title,
-                size: size,
-                quantity: quantity,
+                // Add the selected product details to the array
+                selectedProducts.push({
+                    title: title,
+                    size: size,
+                    quantity: quantity,
+                });
             });
-        });
 
-        console.log ('Selected Products are', selectedProducts)
+            console.log('Selected Products are', selectedProducts);
 
-        // Make a POST request to the server to store the selected products
-        fetch('/buy_now', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ selectedProducts: selectedProducts }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data.message);
-            // Optionally, update the UI or perform other actions based on the server response
-        })
-        .catch(error => console.error('Error:', error));
-        
-        updateOrderCount(data.orderCount);
-        updateCartDisplay();
-        loadUserCart();
-    }else{
+            // Make a POST request to the server to store the selected products
+            fetch('/buy_now', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ selectedProducts: selectedProducts }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                    alert('Order Placed Successfully', 'success');
+                    console.log("r")
+                    location.reload();
+                    order.classList.add("active");
+                }) // You can adjust the timeout value if needed
+                .catch(error => console.error('Error:', error));
 
-    }
+            updateOrderCount();
+            updateCartDisplay();
+            loadUserCart();
+        } else {
+            // Handle the case where the user cancels the confirmation
+        }
     });
 });
-
 
 
 
@@ -125,7 +125,7 @@ function addToOrderTab() {
         quantityInput.value = 1;
     }
 
-    updateOrderCount(data.orderCount);
+    updateOrderCount();
 }
 
 
@@ -176,23 +176,22 @@ function OrderBoxComponent(title, price, imgSrc, size, quantity) {
     return orderBox;
   }
   
-let orderCount = 0;
+  let orderCount = 0;
 
-function updateOrderCount(change) {
-    // Check if change is a valid number
-    if (!isNaN(change)) {
-        // Update the itemCount based on the change value
-        orderCount += change;
-
-        // Get the element where you want to display the item count
-        const orderCountElement = document.querySelector('#order-ctr');
-
-        // Update the display with the new item count
-        orderCountElement.textContent = orderCount;
-    } else {
-        console.error('Invalid order count value:', change);
-    }
-}
+  function updateOrderCount() {
+      const orderContent = document.querySelector('.order-content');
+      const orderBoxes = orderContent.querySelectorAll('.order-box');
+  
+      // Update the order count based on the number of order boxes
+      orderCount = orderBoxes.length;
+  
+      // Get the element where you want to display the item count
+      const orderCountElement = document.querySelector('#order-ctr');
+  
+      // Update the display with the new item count
+      orderCountElement.textContent = orderCount;
+  }
+  
 
 document.addEventListener('DOMContentLoaded', function () {
     const viewOrdersButton = document.getElementById('view-orders-btn');
@@ -228,34 +227,89 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 function fetchOrdersAndUpdateOrderContent() {
+    
     fetch('/get_orders')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             const orderContent = document.querySelector('.order-content');
-            // Clear existing order content
+            
             orderContent.innerHTML = '';
 
-            // Loop through the fetched orders and create order boxes using OrderBoxComponent
+            
             data.orders.forEach(order => {
                 const imagePath = `static/img/${order.product_name}.png`;
                 const orderBox = OrderBoxComponent(
                     order.product_name,
                     `₱${order.order_total.toFixed(2)}`,
-                    imagePath, // Replace with the actual path or URL of the product image
+                    imagePath, 
                     order.order_size,
                     order.order_quantity,
                     order.date_purchase
                 );
 
-                // Append the order box to the order content
+                
                 orderContent.appendChild(orderBox);
             });
-            
-            // Display the order tab
-            order.classList.add("active");
-        })
-        .catch(error => console.error('Error fetching orders:', error));
-}
-document.addEventListener('DOMContentLoaded', function () {
 
-});
+            
+            order.classList.add("active");
+            updateOrderCount();
+        })
+        .catch(error => {
+            
+            if (error.message.startsWith('Server returned status: 401')) {
+                alert('Please login to view orders');
+                window.location.href = '/login';
+            } else {
+                console.error('Error fetching orders:', error);
+            }
+        });
+}
+
+
+function initializeOrder() {
+ // Fetch orders from the server and update the order content dynamically
+ fetch('/get_orders')
+ .then(response => {
+     if (!response.ok) {
+         throw new Error(`Server returned status: ${response.status}`);
+     }
+     return response.json();
+ })
+ .then(data => {
+     const orderContent = document.querySelector('.order-content');
+
+     orderContent.innerHTML = '';
+
+     data.orders.forEach(order => {
+         const imagePath = `static/img/${order.product_name}.png`;
+         const orderBox = OrderBoxComponent(
+             order.product_name,
+             `₱${order.order_total.toFixed(2)}`,
+             imagePath,
+             order.order_size,
+             order.order_quantity,
+             order.date_purchase
+         );
+
+         orderContent.appendChild(orderBox);
+     });
+
+  
+     updateOrderCount();
+ })
+ .catch(error => {
+     if (error.message.startsWith('Server returned status: 401')) {
+         alert('Please login to view orders');
+         window.location.href = '/login';
+     } else {
+         console.error('Error fetching orders:', error);
+     }
+ });
+}
+initializeOrder();
