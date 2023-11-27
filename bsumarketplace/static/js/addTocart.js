@@ -100,8 +100,8 @@ function removeItemFromCart(productName, size) {
             if (indexToRemove !== -1) {
                 cartItems.splice(indexToRemove, 1);
                 updateCartDisplay();
-                updateItemCount();
                 displayTotalPrice();
+                updateItemCount(-1);
                 console.log('Item removed from cart:', { productName, size });
 
             } else {
@@ -130,13 +130,13 @@ function CartBoxComponent(productName, price, imageUrl, size, quantity) {
 
     return `
         <div class="prod-box" id="cart-box">
-            <input type="checkbox" class="custom-checkbox">
+            <input type="checkbox" class="custom-checkbox" id="checkbox">
             <img src="${imageUrl}" alt="${productName}" class="cart-img">
             <div class="detail-box">
                 <div class="cart-product-title">${productName}</div>
                 <div class="cart-price">Price: ${price}</div>
                 <div class="cart-size">
-                    <label for="cartSize">Size: </label>
+                    <label for="cartSize"> </label>
                     <div class="cart-size" id="cartSize">${size}</div>
                     
                     
@@ -262,10 +262,9 @@ function loadUserCart() {
             Array.prototype.push.apply(cartItems, newCartItems);
 
             console.log('Updated cart items:', cartItems);
-
-            updateCartDisplay();
             updateItemCount();
-            updateTotal();
+            updateCartDisplay();
+          
             displayTotalPrice();
 
 
@@ -276,11 +275,6 @@ function loadUserCart() {
         })
         .catch(error => console.error('Error:', error));
 }
-
-
-function updateItemCount() {
-    // Create a Set to store unique item identifiers
-    const uniqueItems = new Set();
 
 function saveOrderToServer(title, price, imgSrc, size, quantity, product_id) {
     fetch('/save_order', {
@@ -303,6 +297,16 @@ function saveOrderToServer(title, price, imgSrc, size, quantity, product_id) {
         // Handle the response as needed
     })
     .catch(error => console.error('Error:', error));
+    // Count the number of unique items in the cart
+    cartItems.forEach(item => {
+        const itemIdentifier = `${item.name}-${item.size}`;
+        uniqueItems.add(itemIdentifier);
+    });
+}
+function updateItemCount() {
+    // Create a Set to store unique item identifiers
+    const uniqueItems = new Set();
+
     // Count the number of unique items in the cart
     cartItems.forEach(item => {
         const itemIdentifier = `${item.name}-${item.size}`;
@@ -332,6 +336,7 @@ function initializeCart() {
     // Call the displayTotalPrice function after updating the cart display
     updateCartDisplay();
     displayTotalPrice();
+
 }
 function displayTotalPrice() {
     const cartTotalElement = document.querySelector('.total-price');
@@ -359,7 +364,7 @@ checkboxes.forEach(checkbox => {
         displayTotalPrice();
     });
 });
-}
+
 
 initializeCart();
 
@@ -368,7 +373,6 @@ console.log('Received data from server:', data);
 document.addEventListener('DOMContentLoaded', function () {
     loadUserCart(); // Fetch cart data from the server
 
-loadUserCart();
     // Update cart display and item count after loading the cart data
     updateCartDisplay();
     updateItemCount();

@@ -52,7 +52,7 @@ document.querySelector('.logout-btn').onclick = function() {
     });
 };
 
-function closePopup() {
+function closePopup_user() {
     var popup = document.getElementById('popup_acc');
     var acc = document.getElementById('acc');
     popup.style.display = 'none';

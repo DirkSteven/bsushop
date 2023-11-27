@@ -355,7 +355,8 @@ def get_orders():
     try:
         # Fetch orders for the current user from the database
         user_orders = Order.query.filter_by(user_id=current_user.id).all()
-
+        # Count the number of orders for the current user
+        order_count = len(user_orders)
         # Convert user_orders to a list of dictionaries for JSON serialization
         orders_data = []
         for order in user_orders:
@@ -369,7 +370,7 @@ def get_orders():
                 'date_purchase': order.date_purchase.strftime("%Y-%m-%d %H:%M:%S")
             })
 
-        return jsonify({'orders': orders_data})
+        return jsonify({'orders': orders_data, 'orderCount': order_count})
 
     except Exception as e:
         print(f"Error fetching orders: {str(e)}")

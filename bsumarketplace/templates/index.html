@@ -49,7 +49,7 @@
             <div id="popup_acc">
                <div class="popAcc">
                   <img src="{{ url_for('static', filename='img/user_info.png') }}" alt="User Info Image">
-                  <span class="close-btn" onclick="closePopup()">×</span>
+                  <span class="close-btn" onclick="closePopup_user()">×</span>
                   <div class="user_info">
                      <p class="uName"></p>
                      <p class="uSRCode"></p>
@@ -72,7 +72,28 @@
       
    </nav>
 
-
+<!--INVOICE-->
+<div id="invoice">
+   <div class="popAcc">
+      <img src="{{ url_for('static', filename='img/invoice.png') }}" alt="INVOICE">
+      <span class="close-btn" onclick="closePopup()">×</span>
+      <div class="invoice_info">
+         <div class="iUser">
+            <p class="iName"></p>
+            <p class="iSRCode"></p>
+         </div>
+         <div class="iOrder">
+            <p class="iQty"></p>
+            <p class="iItem"></p>
+            <p class="iSize"></p>
+         </div>
+         <div class="inv">
+            <p class="iDate"></p>
+            <p class="iTotal"></p>
+         </div>
+      </div>
+   </div>
+</div>
 
 
 <!-- CART  -->
@@ -260,6 +281,7 @@
    <script type="text/javascript" src="{{ url_for('static', filename='js/preview.js') }}"> </script>
    <script type="text/javascript" src="{{ url_for('static', filename='js/pop-upOrder.js') }}"> </script> 
    <script type="text/javascript" src="{{ url_for('static', filename='js/userInfo.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/invoice.js') }}"> </script>
 
    
    

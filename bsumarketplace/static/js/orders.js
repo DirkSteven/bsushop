@@ -13,10 +13,10 @@ closeOrder.addEventListener("click", () => {
 });
 
 // Assuming you have a "Buy Now" button with class "btn-buy"
-const buyNowButton = document.querySelector(".btn-buy");
+
 
 document.addEventListener('DOMContentLoaded', function () {
-    const buyNowButton = document.getElementById('buyNowButton');
+    const buyNowButton = document.querySelector(".btn-buy");
     
 
     buyNowButton.addEventListener('click', function () {
@@ -25,6 +25,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Prepare an array to store the selected products
         const selectedProducts = [];
+        if (checkedCheckboxes.length === 0) {
+            // No items selected, display a message to the user
+            alert('Please select an item before proceeding.');
+            return; // Stop execution if no items are selected
+        }
+        // Show a confirmation dialog before moving items to the order tab
+        const confirmBuyNow = confirm("Are you sure you want to buy the selected items?");
+        if (confirmBuyNow) {
 
         checkedCheckboxes.forEach(checkbox => {
             const cartBox = checkbox.closest('#cart-box');
@@ -59,6 +67,13 @@ document.addEventListener('DOMContentLoaded', function () {
             // Optionally, update the UI or perform other actions based on the server response
         })
         .catch(error => console.error('Error:', error));
+        
+        updateOrderCount(data.orderCount);
+        updateCartDisplay();
+        loadUserCart();
+    }else{
+
+    }
     });
 });
 
@@ -110,13 +125,14 @@ function addToOrderTab() {
         quantityInput.value = 1;
     }
 
-    updateOrderCount(1);
+    updateOrderCount(data.orderCount);
 }
 
 
 
 function OrderBoxComponent(title, price, imgSrc, size, quantity) {
-    const orderSize = size ? `${size}` : 'Size: N/A'; // If size is falsy, set it to 'N/A'
+    console.log('Size:', size);
+    const orderSize = size ? `${size}` : 'Size: N/A'; 
     
   
     // Ensure the price is properly formatted as a number
@@ -145,23 +161,37 @@ function OrderBoxComponent(title, price, imgSrc, size, quantity) {
         </div>
         </div>
     `;
+    orderBox.addEventListener('click', function() {
+        console.log("open")
+        openInvoicePopup({
+            title: title,
+            totalPrice: totalPrice,
+            orderSize: orderSize,
+            quantity: quantity,
+            formattedDate: formattedDate
+        });
+    });
+
   
     return orderBox;
   }
   
-
 let orderCount = 0;
 
-// Function to update the item count
 function updateOrderCount(change) {
-    // Update the itemCount based on the change value
-    orderCount += change;
+    // Check if change is a valid number
+    if (!isNaN(change)) {
+        // Update the itemCount based on the change value
+        orderCount += change;
 
-    // Get the element where you want to display the item count
-    const orderCountElement = document.querySelector('#order-ctr');
-    
-    // Update the display with the new item count
-    orderCountElement.textContent = orderCount;
+        // Get the element where you want to display the item count
+        const orderCountElement = document.querySelector('#order-ctr');
+
+        // Update the display with the new item count
+        orderCountElement.textContent = orderCount;
+    } else {
+        console.error('Invalid order count value:', change);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -220,9 +250,12 @@ function fetchOrdersAndUpdateOrderContent() {
                 // Append the order box to the order content
                 orderContent.appendChild(orderBox);
             });
-
+            
             // Display the order tab
             order.classList.add("active");
         })
         .catch(error => console.error('Error fetching orders:', error));
 }
+document.addEventListener('DOMContentLoaded', function () {
+
+});
