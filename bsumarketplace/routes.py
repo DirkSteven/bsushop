@@ -1,19 +1,17 @@
-
-
 from flask import render_template, url_for, flash, redirect, request, session, g, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from bsumarketplace import app, db, bcrypt
 from bsumarketplace.forms import RegistrationForm, LoginForm
 from bsumarketplace.models import User, Product, Category, ProductVariant, Cart, Order
 from datetime import datetime
-import re
 from sqlalchemy.exc import IntegrityError
+
 
 @app.route('/')
 @app.route('/index')
 def index():
-
     is_user_logged_in = current_user.is_authenticated
+
     # Fetch categories from the database
     uniform_category = Category.query.filter_by(name='Uniform').first()
     univ_merch_category = Category.query.filter_by(name='UnivMerch').first()
@@ -40,15 +38,14 @@ def index():
         variants = ProductVariant.query.filter_by(product=product).all()
         org_merch_variants[product.id] = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
 
-    #  Render the template with the fetched data
+    # Render the template with the fetched data
     return render_template('index.html',
                            uniform_products=uniform_products,
                            univ_merch_products=univ_merch_products,
                            org_merch_products=org_merch_products,
                            uniform_variants=uniform_variants,
                            univ_merch_variants=univ_merch_variants,
-                           org_merch_variants=org_merch_variants, is_user_logged_in = is_user_logged_in)
-
+                           org_merch_variants=org_merch_variants, is_user_logged_in=is_user_logged_in)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -63,7 +60,7 @@ def login():
         user = User.query.filter_by(sr_code=form.sr_code.data).first()
 
         if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user)  # Log in the user using Flask-Login
+            login_user(user)
             flash('Login Successful', 'success')
             return redirect(url_for('index'))
         else:
@@ -82,8 +79,9 @@ def get_user_info():
         'sr_code': current_user.sr_code,
         'id': current_user.id,
     }
-    print (user_info)
+    print(user_info)
     return jsonify(user_info)
+
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -92,18 +90,18 @@ def logout():
         flash('You have been logged out', 'info')
         return jsonify({'message': 'Logout successful'})
     else:
-        # Handle GET request, e.g., redirect to the index page
         return redirect(url_for('index'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
-
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(name=form.name.data, email=form.email.data, password=hashed_password, program=form.program.data, sr_code=form.sr_code.data)
-        
+        user = User(name=form.name.data, email=form.email.data, password=hashed_password,
+                    program=form.program.data, sr_code=form.sr_code.data)
+
         # For Debug
         print("Form validated successfully")
         print(f'Name: {form.name.data}')
@@ -122,10 +120,9 @@ def register():
 
     return render_template('signup.html', title='Register', form=form)
 
+
 @app.route('/get_additional_data/<int:product_id>', methods=['GET'])
 def get_additional_data(product_id):
-    # Example: Fetch additional data based on the product ID
-    # You can customize this based on your application's requirements
     additional_data = {'example_key': 'example_value'}
     print(f"Request made to {request.url}")
     return jsonify(additional_data)
@@ -165,6 +162,7 @@ def add_to_cart():
     return jsonify({'message': 'Added to cart successfully'})
 
 
+
 @app.route('/check_login_status', methods=['GET'])
 def check_login_status():
     # Check if the user is logged in
@@ -182,14 +180,14 @@ def display_flash():
     flash(data['message'], data['category'])
     return jsonify({'message': 'Flash message displayed successfully'})
 
+
 @app.route('/get_user_cart')
 @login_required
 def get_user_cart():
-    user_cart = db.session.query(Cart, Product).\
-        filter(Cart.user_id == current_user.id).\
+    user_cart = db.session.query(Cart, Product). \
+        filter(Cart.user_id == current_user.id). \
         filter(Cart.product_id == Product.id).all()
 
-    # Convert user_cart to a list of dictionaries for JSON serialization
     cart_items = []
     for cart, product in user_cart:
         cart_items.append({
@@ -199,25 +197,18 @@ def get_user_cart():
             'size': cart.selected_size,
             'name': product.name,
             'image_url': product.image_url,
-            'price': product.price  # You can include other product details as needed
+            'price': product.price
         })
-    # print (cart_items)
 
     return jsonify({'cartItems': cart_items})
 
 
-
-
-
-
 @app.route('/get_variant_data/<int:product_id>', methods=['GET'])
 def get_variant_data(product_id):
-
     variants = ProductVariant.query.filter_by(product_id=product_id).all()
     variant_data = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
-    # print (variant_data)
-    return jsonify(variant_data)
 
+    return jsonify(variant_data)
 
 
 @app.route('/remove_from_cart', methods=['POST'])
@@ -228,13 +219,11 @@ def remove_from_cart():
     product_name = data.get('productName')
     size = data.get('size')
 
-    # Find the product and get its ID
     product = Product.query.filter_by(name=product_name).first()
 
     if product:
         product_id = product.id
 
-        # Find the cart item in the database and delete it
         cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id, selected_size=size).first()
 
         if cart_item:
@@ -249,7 +238,6 @@ def remove_from_cart():
     else:
         print(f"Product not found. Product Name: {product_name}")
         return jsonify({'success': False, 'message': 'Product not found'})
-    
 
 
 @app.route('/buy_now', methods=['POST'])
@@ -257,7 +245,6 @@ def remove_from_cart():
 def buy_now():
     data = request.get_json()
 
-    # Assuming you have a function to process and store the selected products in the database
     success = process_and_store_selected_products(current_user.id, data.get('selectedProducts', []))
     delete_cart_items(current_user.id, data.get('selectedProducts', []))
 
@@ -267,12 +254,10 @@ def buy_now():
     else:
         return jsonify({'message': 'Failed to store selected products'})
 
-# Add the necessary logic to process and store the selected products in the database
+
 def process_and_store_selected_products(user_id, selected_products):
     try:
         for product in selected_products:
-
-            
             order = Order(
                 user_id=user_id,
                 product_id=get_product_id_by_title(product['title']),
@@ -290,21 +275,18 @@ def process_and_store_selected_products(user_id, selected_products):
         print(f"Error processing and storing selected products: {str(e)}")
         db.session.rollback()
         return False
-    
+
 
 def update_product_variant_stock(selected_products):
     try:
         for product in selected_products:
-            # Assuming product['title'] is the product name
             product_id = get_product_id_by_title(product['title'])
             size = product['size']
             quantity = product['quantity']
 
-            # Fetch the corresponding ProductVariant and update the stock
             product_variant = ProductVariant.query.filter_by(product_id=product_id, size=size).first()
-            
+
             if product_variant:
-                # Ensure the stock doesn't go below 0
                 new_stock = max(0, product_variant.stock - quantity)
                 product_variant.stock = new_stock
 
@@ -314,14 +296,13 @@ def update_product_variant_stock(selected_products):
         db.session.rollback()
 
 
-
 def get_product_id_by_title(product_title):
     product = Product.query.filter_by(name=product_title).first()
     if product:
         return product.id
     else:
         raise ValueError(f"Product with title '{product_title}' not found.")
-    
+
 
 def calculate_order_total(product_title, quantity):
     product = Product.query.filter_by(name=product_title).first()
@@ -329,7 +310,7 @@ def calculate_order_total(product_title, quantity):
         return product.price * quantity
     else:
         raise ValueError(f"Product with title '{product_title}' not found.")
-    
+
 
 def delete_cart_items(user_id, selected_products):
     try:
@@ -337,7 +318,6 @@ def delete_cart_items(user_id, selected_products):
             product_id = get_product_id_by_title(product['title'])
             size = product['size']
 
-            # Delete only the specific cart item that matches the product and size
             cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id, selected_size=size).first()
 
             if cart_item:
@@ -347,22 +327,18 @@ def delete_cart_items(user_id, selected_products):
     except Exception as e:
         print(f"Error deleting cart items: {str(e)}")
         db.session.rollback()
-    
+
 
 @app.route('/get_orders', methods=['GET'])
 @login_required
 def get_orders():
     if not current_user.is_authenticated:
-        return jsonify({'error': 'Please Login'}), 40
+        return jsonify({'error': 'Please Login'}), 400
     try:
-        # Fetch orders for the current user from the database
         user_orders = Order.query.filter_by(user_id=current_user.id).all()
-        # Count the number of orders for the current user
         order_count = len(user_orders)
-        # Convert user_orders to a list of dictionaries for JSON serialization
         orders_data = []
         for order in user_orders:
-
             product = Product.query.get(order.product_id)
             orders_data.append({
                 'product_name': product.name,

@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log('Selected Products are', selectedProducts);
 
-            // Make a POST request to the server to store the selected products
+            
             fetch('/buy_now', {
                 method: 'POST',
                 headers: {
@@ -66,14 +66,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.log("r")
                     location.reload();
                     order.classList.add("active");
-                }) // You can adjust the timeout value if needed
+                }) 
                 .catch(error => console.error('Error:', error));
 
             updateOrderCount();
             updateCartDisplay();
             loadUserCart();
         } else {
-            // Handle the case where the user cancels the confirmation
+            
         }
     });
 });
@@ -273,7 +273,7 @@ function fetchOrdersAndUpdateOrderContent() {
 
 
 function initializeOrder() {
- // Fetch orders from the server and update the order content dynamically
+ 
  fetch('/get_orders')
  .then(response => {
      if (!response.ok) {

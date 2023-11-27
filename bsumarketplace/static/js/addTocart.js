@@ -5,8 +5,15 @@ const closeCart = document.querySelector("#closeCart");
 
 
 
-cartIcon.addEventListener("click", () => {
-    cart.classList.add("active");
+cartIcon.addEventListener("click", async () => {
+    const isLoggedIn = await userIsLoggedIn();
+
+    if (isLoggedIn) {
+        cart.classList.add("active");
+    } else {
+        alert("Please Login to View Cart");
+        window.location.href='/login'
+    }
 });
 
 closeCart.addEventListener("click", () => {
@@ -17,6 +24,22 @@ if (document.readyState == "loading") {
     document.addEventListener("DOMContentLoaded", start);
 } else {
     start();
+}
+
+async function userIsLoggedIn() {
+    try {
+        const response = await fetch('/check_login_status');
+        const data = await response.json();
+
+        if (data.logged_in) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error checking login status:', error);
+        return false;
+    }
 }
 
 const cartItems = [];
@@ -30,9 +53,6 @@ function addItemToCart(productName, size, imageUrl, removeFromCart = true) {
         return;
     }
 
-    // const quantityInput = document.getElementById('quantity');
-    // const quantity = parseInt(quantityInput.value, 10);
-    // selectedProductInfo.quantity = quantity;
 
     const quantity = 1;
 
