@@ -1,11 +1,12 @@
 from flask import render_template, url_for, flash, redirect, request, session, g, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
+from sqlalchemy import text  # Import the text function
 from bsumarketplace import app, db, bcrypt
 from bsumarketplace.forms import RegistrationForm, LoginForm
 from bsumarketplace.models import User, Product, Category, ProductVariant, Cart, Order
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
-
+from werkzeug.security import check_password_hash, generate_password_hash  # Import these functions
 
 @app.route('/')
 @app.route('/index')
@@ -13,30 +14,31 @@ def index():
     is_user_logged_in = current_user.is_authenticated
 
     # Fetch categories from the database
-    uniform_category = Category.query.filter_by(name='Uniform').first()
-    univ_merch_category = Category.query.filter_by(name='UnivMerch').first()
-    org_merch_category = Category.query.filter_by(name='OrgMerch').first()
+    with db.engine.connect() as connection:
+        uniform_category = connection.execute(text("SELECT * FROM category WHERE name = 'Uniform'")).first()
+        univ_merch_category = connection.execute(text("SELECT * FROM category WHERE name = 'UnivMerch'")).first()
+        org_merch_category = connection.execute(text("SELECT * FROM category WHERE name = 'OrgMerch'")).first()
 
-    # Fetch products for each category
-    uniform_products = Product.query.filter_by(category=uniform_category).all()
-    univ_merch_products = Product.query.filter_by(category=univ_merch_category).all()
-    org_merch_products = Product.query.filter_by(category=org_merch_category).all()
+        # Fetch products for each category
+        uniform_products = connection.execute(text("SELECT * FROM product WHERE category_id = :category_id"), {"category_id": uniform_category.id}).fetchall()
+        univ_merch_products = connection.execute(text("SELECT * FROM product WHERE category_id = :category_id"), {"category_id": univ_merch_category.id}).fetchall()
+        org_merch_products = connection.execute(text("SELECT * FROM product WHERE category_id = :category_id"), {"category_id": org_merch_category.id}).fetchall()
 
-    # Fetch product variants for each product
-    uniform_variants = {}
-    for product in uniform_products:
-        variants = ProductVariant.query.filter_by(product=product).all()
-        uniform_variants[product.id] = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
+        # Fetch product variants for each product
+        uniform_variants = {}
+        for product in uniform_products:
+            variants = connection.execute(text("SELECT * FROM product_variant WHERE product_id = :product_id"), {"product_id": product.id}).fetchall()
+            uniform_variants[product.id] = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
 
-    univ_merch_variants = {}
-    for product in univ_merch_products:
-        variants = ProductVariant.query.filter_by(product=product).all()
-        univ_merch_variants[product.id] = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
+        univ_merch_variants = {}
+        for product in univ_merch_products:
+            variants = connection.execute(text("SELECT * FROM product_variant WHERE product_id = :product_id"), {"product_id": product.id}).fetchall()
+            univ_merch_variants[product.id] = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
 
-    org_merch_variants = {}
-    for product in org_merch_products:
-        variants = ProductVariant.query.filter_by(product=product).all()
-        org_merch_variants[product.id] = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
+        org_merch_variants = {}
+        for product in org_merch_products:
+            variants = connection.execute(text("SELECT * FROM product_variant WHERE product_id = :product_id"), {"product_id": product.id}).fetchall()
+            org_merch_variants[product.id] = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
 
     # Render the template with the fetched data
     return render_template('index.html',
@@ -46,6 +48,11 @@ def index():
                            uniform_variants=uniform_variants,
                            univ_merch_variants=univ_merch_variants,
                            org_merch_variants=org_merch_variants, is_user_logged_in=is_user_logged_in)
+
+
+
+
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -72,16 +79,20 @@ def login():
 @app.route('/get_user_info', methods=['GET'])
 @login_required
 def get_user_info():
+    # Fetch user information using raw SQL
+    with db.engine.connect() as connection:
+        query = text("SELECT id, name, email, program, sr_code FROM user WHERE id = :user_id")
+        result = connection.execute(query, {"user_id": current_user.id}).first()
+
     user_info = {
-        'name': current_user.name,
-        'email': current_user.email,
-        'program': current_user.program,
-        'sr_code': current_user.sr_code,
-        'id': current_user.id,
+        'name': result.name,
+        'email': result.email,
+        'program': result.program,
+        'sr_code': result.sr_code,
+        'id': result.id,
     }
     print(user_info)
     return jsonify(user_info)
-
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -123,10 +134,10 @@ def register():
 
 @app.route('/get_additional_data/<int:product_id>', methods=['GET'])
 def get_additional_data(product_id):
+    # Fetch additional data using raw SQL (replace this with your actual data retrieval logic)
     additional_data = {'example_key': 'example_value'}
     print(f"Request made to {request.url}")
     return jsonify(additional_data)
-
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -138,26 +149,28 @@ def add_to_cart():
     # Extract the selected size from the request data
     selected_size = data.get('selected_size', None)
 
-    # Add the selected product to the user's cart along with the selected size
-    existing_cart_item = Cart.query.filter_by(user_id=user_id, product_id=data['product_id'], selected_size=selected_size).first()
+    # Add the selected product to the user's cart along with the selected size using raw SQL
+    with db.engine.connect() as connection:
+        # Check if the item already exists in the cart
+        existing_cart_item = connection.execute(
+            text("SELECT * FROM cart WHERE user_id = :user_id AND product_id = :product_id AND selected_size = :selected_size"),
+            {"user_id": user_id, "product_id": data['product_id'], "selected_size": selected_size}
+        ).fetchone()
 
-    if existing_cart_item:
-        # Update the quantity if the item already exists
-        existing_cart_item.quantity += data['quantity']
-        db.session.commit()
-        print("Item quantity updated in the cart:", existing_cart_item)
-    else:
-        # Add the selected product to the user's cart along with the selected size
-        cart_item = Cart(user_id=user_id, product_id=data['product_id'], quantity=data['quantity'], selected_size=selected_size)
-        db.session.add(cart_item)
-
-        try:
-            db.session.commit()
-            print("Item added to the cart:", cart_item)
-        except IntegrityError:
-            # Handle IntegrityError in case of concurrent requests trying to add the same item simultaneously
-            db.session.rollback()
-            print("IntegrityError: Item already exists in the cart for the current user.")
+        if existing_cart_item:
+            # Update the quantity if the item already exists
+            connection.execute(
+                text("UPDATE cart SET quantity = quantity + :quantity WHERE id = :cart_id"),
+                {"quantity": data['quantity'], "cart_id": existing_cart_item.id}
+            )
+            print("Item quantity updated in the cart:", existing_cart_item)
+        else:
+            # Add the selected product to the user's cart along with the selected size
+            connection.execute(
+                text("INSERT INTO cart (user_id, product_id, quantity, selected_size) VALUES (:user_id, :product_id, :quantity, :selected_size)"),
+                {"user_id": user_id, "product_id": data['product_id'], "quantity": data['quantity'], "selected_size": selected_size}
+            )
+            print("Item added to the cart successfully.")
 
     return jsonify({'message': 'Added to cart successfully'})
 
@@ -165,14 +178,18 @@ def add_to_cart():
 
 @app.route('/check_login_status', methods=['GET'])
 def check_login_status():
-    # Check if the user is logged in
-    if current_user.is_authenticated:
-        print(f'User is logged in. User ID: {current_user.id}, Name: {current_user.name}')
+    # Check if the user is logged in using raw SQL
+    with db.engine.connect() as connection:
+        query = text("SELECT id, name FROM user WHERE id = :user_id")
+        result = connection.execute(query, {"user_id": current_user.id}).fetchone()
+
+    if result:
+        print(f'User is logged in. User ID: {result.id}, Name: {result.name}')
         logged_in = True
     else:
         print('User is not logged in')
         logged_in = False
-    return jsonify({'logged_in': logged_in, 'user_id': current_user.id if logged_in else None})
+    return jsonify({'logged_in': logged_in, 'user_id': result.id if logged_in else None})
 
 @app.route('/display_flash', methods=['POST'])
 def display_flash():
@@ -180,24 +197,25 @@ def display_flash():
     flash(data['message'], data['category'])
     return jsonify({'message': 'Flash message displayed successfully'})
 
-
 @app.route('/get_user_cart')
 @login_required
 def get_user_cart():
-    user_cart = db.session.query(Cart, Product). \
-        filter(Cart.user_id == current_user.id). \
-        filter(Cart.product_id == Product.id).all()
+    # Fetch user cart items using raw SQL
+    with db.engine.connect() as connection:
+        query = text("SELECT c.product_id, c.quantity, c.date_added, c.selected_size, p.name, p.image_url, p.price "
+                     "FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = :user_id")
+        results = connection.execute(query, {"user_id": current_user.id}).fetchall()
 
     cart_items = []
-    for cart, product in user_cart:
+    for result in results:
         cart_items.append({
-            'product_id': cart.product_id,
-            'quantity': cart.quantity,
-            'date_added': cart.date_added.strftime("%Y-%m-%d %H:%M:%S"),
-            'size': cart.selected_size,
-            'name': product.name,
-            'image_url': product.image_url,
-            'price': product.price
+            'product_id': result.product_id,
+            'quantity': result.quantity,
+            'date_added': result.date_added.strftime("%Y-%m-%d %H:%M:%S"),
+            'size': result.selected_size,
+            'name': result.name,
+            'image_url': result.image_url,
+            'price': result.price
         })
 
     return jsonify({'cartItems': cart_items})
@@ -205,11 +223,13 @@ def get_user_cart():
 
 @app.route('/get_variant_data/<int:product_id>', methods=['GET'])
 def get_variant_data(product_id):
-    variants = ProductVariant.query.filter_by(product_id=product_id).all()
+    # Fetch variant data using raw SQL
+    with db.engine.connect() as connection:
+        query = text("SELECT size, stock FROM product_variant WHERE product_id = :product_id")
+        variants = connection.execute(query, {"product_id": product_id}).fetchall()
+
     variant_data = [{'size': variant.size, 'stock': variant.stock} for variant in variants]
-
     return jsonify(variant_data)
-
 
 @app.route('/remove_from_cart', methods=['POST'])
 @login_required
@@ -219,114 +239,111 @@ def remove_from_cart():
     product_name = data.get('productName')
     size = data.get('size')
 
-    product = Product.query.filter_by(name=product_name).first()
+    # Fetch product and cart item using raw SQL
+    with db.engine.connect() as connection:
+        product_query = text("SELECT id FROM product WHERE name = :product_name")
+        product_id = connection.execute(product_query, {"product_name": product_name}).scalar()
 
-    if product:
-        product_id = product.id
+        cart_item_query = text("SELECT id FROM cart WHERE user_id = :user_id AND product_id = :product_id AND selected_size = :selected_size")
+        cart_item_id = connection.execute(cart_item_query, {"user_id": current_user.id, "product_id": product_id, "selected_size": size}).scalar()
 
-        cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id, selected_size=size).first()
-
-        if cart_item:
-            db.session.delete(cart_item)
-            db.session.commit()
+        if cart_item_id:
+            # Delete the cart item if it exists
+            connection.execute(text("DELETE FROM cart WHERE id = :cart_item_id"), {"cart_item_id": cart_item_id})
             print(f"Item removed from the cart and database. Product Name: {product_name}, Size: {size}")
-
             return jsonify({'success': True, 'message': 'Item removed from the cart and database successfully'})
         else:
             print(f"Item not found in the cart or database. Product Name: {product_name}, Size: {size}")
             return jsonify({'success': False, 'message': 'Item not found in the cart or database'})
-    else:
-        print(f"Product not found. Product Name: {product_name}")
-        return jsonify({'success': False, 'message': 'Product not found'})
-
 
 @app.route('/buy_now', methods=['POST'])
 @login_required
 def buy_now():
     data = request.get_json()
 
+    # Process and store selected products using raw SQL
     success = process_and_store_selected_products(current_user.id, data.get('selectedProducts', []))
-    delete_cart_items(current_user.id, data.get('selectedProducts', []))
 
     if success:
+        # Update product variant stock and delete cart items using raw SQL
         update_product_variant_stock(data.get('selectedProducts', []))
-        return jsonify({'message': 'Selected products stored successfully'})
+        delete_cart_items(current_user.id, data.get('selectedProducts', []))
+
+        return jsonify({'message': 'Selected products stored and processed successfully'})
     else:
-        return jsonify({'message': 'Failed to store selected products'})
+        return jsonify({'message': 'Failed to store and process selected products'})
 
-
+# Helper functions using raw SQL
 def process_and_store_selected_products(user_id, selected_products):
     try:
-        for product in selected_products:
-            order = Order(
-                user_id=user_id,
-                product_id=get_product_id_by_title(product['title']),
-                order_quantity=product['quantity'],
-                order_size=product['size'],
-                order_total=calculate_order_total(product['title'], product['quantity'])
-            )
+        with db.engine.connect() as connection:
+            for product in selected_products:
+                order_query = text("INSERT INTO order (user_id, product_id, order_quantity, order_size, order_total) "
+                                   "VALUES (:user_id, :product_id, :order_quantity, :order_size, :order_total)")
+                connection.execute(order_query, {
+                    "user_id": user_id,
+                    "product_id": get_product_id_by_title(connection, product['title']),
+                    "order_quantity": product['quantity'],
+                    "order_size": product['size'],
+                    "order_total": calculate_order_total(connection, product['title'], product['quantity'])
+                })
 
-            db.session.add(order)
-            print(order.order_size)
-
-        db.session.commit()
         return True
     except Exception as e:
         print(f"Error processing and storing selected products: {str(e)}")
-        db.session.rollback()
         return False
-
 
 def update_product_variant_stock(selected_products):
     try:
-        for product in selected_products:
-            product_id = get_product_id_by_title(product['title'])
-            size = product['size']
-            quantity = product['quantity']
+        with db.engine.connect() as connection:
+            for product in selected_products:
+                product_id = get_product_id_by_title(connection, product['title'])
+                size = product['size']
+                quantity = product['quantity']
 
-            product_variant = ProductVariant.query.filter_by(product_id=product_id, size=size).first()
+                product_variant_query = text("SELECT stock FROM product_variant WHERE product_id = :product_id AND size = :size")
+                product_variant_stock = connection.execute(product_variant_query, {"product_id": product_id, "size": size}).scalar()
 
-            if product_variant:
-                new_stock = max(0, product_variant.stock - quantity)
-                product_variant.stock = new_stock
+                if product_variant_stock is not None:
+                    new_stock = max(0, product_variant_stock - quantity)
 
-        db.session.commit()
+                    update_stock_query = text("UPDATE product_variant SET stock = :new_stock "
+                                              "WHERE product_id = :product_id AND size = :size")
+                    connection.execute(update_stock_query, {"new_stock": new_stock, "product_id": product_id, "size": size})
+
     except Exception as e:
         print(f"Error updating product variant stock: {str(e)}")
-        db.session.rollback()
 
+def get_product_id_by_title(connection, product_title):
+    product_query = text("SELECT id FROM product WHERE name = :product_title")
+    product_id = connection.execute(product_query, {"product_title": product_title}).scalar()
 
-def get_product_id_by_title(product_title):
-    product = Product.query.filter_by(name=product_title).first()
-    if product:
-        return product.id
+    if product_id:
+        return product_id
     else:
         raise ValueError(f"Product with title '{product_title}' not found.")
 
+def calculate_order_total(connection, product_title, quantity):
+    product_query = text("SELECT price FROM product WHERE name = :product_title")
+    product_price = connection.execute(product_query, {"product_title": product_title}).scalar()
 
-def calculate_order_total(product_title, quantity):
-    product = Product.query.filter_by(name=product_title).first()
-    if product:
-        return product.price * quantity
+    if product_price is not None:
+        return product_price * quantity
     else:
         raise ValueError(f"Product with title '{product_title}' not found.")
-
 
 def delete_cart_items(user_id, selected_products):
     try:
-        for product in selected_products:
-            product_id = get_product_id_by_title(product['title'])
-            size = product['size']
+        with db.engine.connect() as connection:
+            for product in selected_products:
+                product_id = get_product_id_by_title(connection, product['title'])
+                size = product['size']
 
-            cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id, selected_size=size).first()
+                cart_item_query = text("DELETE FROM cart WHERE user_id = :user_id AND product_id = :product_id AND selected_size = :size")
+                connection.execute(cart_item_query, {"user_id": user_id, "product_id": product_id, "size": size})
 
-            if cart_item:
-                db.session.delete(cart_item)
-
-        db.session.commit()
     except Exception as e:
         print(f"Error deleting cart items: {str(e)}")
-        db.session.rollback()
 
 
 @app.route('/get_orders', methods=['GET'])
@@ -334,14 +351,22 @@ def delete_cart_items(user_id, selected_products):
 def get_orders():
     if not current_user.is_authenticated:
         return jsonify({'error': 'Please Login'}), 400
+
     try:
-        user_orders = Order.query.filter_by(user_id=current_user.id).all()
+        # Fetch user orders using raw SQL
+        with db.engine.connect() as connection:
+            query = text("SELECT o.order_quantity, o.order_size, o.order_total, o.date_purchase, p.name as product_name "
+                         "FROM orders o "
+                         "JOIN product p ON o.product_id = p.id "
+                         "WHERE o.user_id = :user_id")
+            user_orders = connection.execute(query, {"user_id": current_user.id}).fetchall()
+
         order_count = len(user_orders)
         orders_data = []
+
         for order in user_orders:
-            product = Product.query.get(order.product_id)
             orders_data.append({
-                'product_name': product.name,
+                'product_name': order.product_name,
                 'order_quantity': order.order_quantity,
                 'order_size': order.order_size,
                 'order_total': float(order.order_total),  # Convert to float for JSON serialization

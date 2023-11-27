@@ -182,6 +182,7 @@ selectedProductInfo.quantity = parseInt(quantityInput.value, 10);
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    
                 },
                 body: JSON.stringify(cartData),
             })
