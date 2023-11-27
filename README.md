@@ -174,6 +174,7 @@ class User(db.Model, UserMixin):
     sr_code = db.Column(db.String(20), unique=True, nullable=False)
     program = db.Column(db.String(20), nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    user_level = db.Column (db.Integer, default=1)
 
     def __repr__(self):
         return f"User('{self.name}', '{self.email}', '{self.sr_code}', '{self.program}')"
