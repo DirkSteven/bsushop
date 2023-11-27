@@ -15,7 +15,7 @@ def index():
     # Fetch categories from the database
     uniform_category = Category.query.filter_by(name='Uniform').first()
     univ_merch_category = Category.query.filter_by(name='UnivMerch').first()
-    org_merch_category = Category.query.filter_by(name='OrgMerch').first()
+    org_merch_category = Category.query.filter_by(name='OrgMerch').first()  
 
     # Fetch products for each category
     uniform_products = Product.query.filter_by(category=uniform_category).all()
