@@ -264,7 +264,7 @@ function fetchOrdersAndUpdateOrderContent() {
             
             if (error.message.startsWith('Server returned status: 401')) {
                 alert('Please login to view orders');
-                window.location.href = '/login';
+                 window.location.href = '/login';
             } else {
                 console.error('Error fetching orders:', error);
             }
@@ -305,10 +305,10 @@ function initializeOrder() {
  })
  .catch(error => {
      if (error.message.startsWith('Server returned status: 401')) {
-         alert('Please login to view orders');
-         window.location.href = '/login';
+        //  alert('Please login to view orders');
+        //  window.location.href = '/login';
      } else {
-         console.error('Error fetching orders:', error);
+        //  console.error('Error fetching orders:', error);
      }
  });
 }
