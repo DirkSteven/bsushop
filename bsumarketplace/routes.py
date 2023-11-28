@@ -62,11 +62,44 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
             flash('Login Successful', 'success')
-            return redirect(url_for('index'))
+            if user.user_level == 2:
+                return redirect(url_for('admin'))
+            else:
+                return redirect(url_for('index'))
         else:
             flash('Login Failed. Please check your SR-Code and password', 'danger')
 
     return render_template('login.html', title='Login', form=form)
+
+
+@app.route('/admin')
+@login_required  
+def admin():
+
+    products = Product.query.all()
+   
+    return render_template('admin.html', title='Admin Dashboard', products=products)
+
+
+@app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def edit_product(product_id):
+    # Fetch the product and its variants based on the product_id
+    product = Product.query.get_or_404(product_id)
+    variants = ProductVariant.query.filter_by(product_id=product.id).all()
+
+    if request.method == 'POST':
+
+        for variant in variants:
+            variant.stock = request.form.get(f'variant_{variant.id}')
+
+
+        db.session.commit()
+        return jsonify({'success': True})
+
+
+    form_content = render_template('edit_product_form.html', product=product, variants=variants)
+    return jsonify({'product': form_content})
 
 
 @app.route('/get_user_info', methods=['GET'])
