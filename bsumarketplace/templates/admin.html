@@ -17,75 +17,6 @@
         <script src="https://kit.fontawesome.com/67c66657c7.js"></script>
         <script src="https://unpkg.com/boxicons@2.1.2/js/boxicons.min.js"></script>
 
-<<<<<<< HEAD
-
-        <style>
-            /* Style for the modal */
-            .modal {
-                display: none;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                padding: 20px;
-                background-color: #fff;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-                z-index: 1000;
-            }
-        
-            /* Style for the modal content */
-            .modal-content {
-                /* Add your styles for the modal content */
-            }
-        
-            /* Style for the form within the modal */
-            #editModalForm {
-                max-width: 400px; /* Adjust the maximum width as needed */
-                margin: 0 auto; /* Center the form horizontally */
-            }
-        
-            /* Style for form labels */
-            #editModalForm label {
-                display: block;
-                margin-bottom: 5px;
-                font-weight: bold;
-            }
-        
-            /* Style for form inputs */
-            #editModalForm input {
-                width: 100%;
-                padding: 8px;
-                margin-bottom: 10px;
-                box-sizing: border-box;
-            }
-        
-            /* Style for the submit button */
-            #editModalForm button {
-                background-color: #007bff; /* Adjust the background color as needed */
-                color: #fff;
-                padding: 10px;
-                border: none;
-                cursor: pointer;
-            }
-        
-            #editModalForm button:hover {
-                background-color: #0056b3; /* Adjust the hover background color as needed */
-            }
-        </style>
-
-
-    </head>
-<body>
-<div class="admin-content">
-    <h2>Welcome to the Admin Dashboard</h2>
-
-    <!-- Display all products with variants and an "Edit Product" button -->
-    <h3>All Products</h3>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Name</th>
-=======
     </head>
 <body>
 <div class="admin-content">
@@ -94,13 +25,12 @@
     <!-- Display all products with variants and an "Edit Product" button -->
     <div class="contain">
         <h3 class="all-p">All Products</h3>
-        <a href="{{ url_for('index') }}" class="logout-btn-admin">Back to Shop</a>
+        <a href="{{ url_for('index') }}" class="logout-btn-admin" onclick="logout()">Back to Shop</a>
       </div>
     <table class="table">
         <thead>
         <tr>
             <th>Item</th>
->>>>>>> 3fef88f5e92c37792cbb504f465643a15c1c6bce
             <th>Category</th>
             <th>Price</th>
             <th>Description</th>
@@ -152,26 +82,46 @@
         xhr.open('GET', '/edit_product/' + productId, true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState == 4 && xhr.status == 200) {
-                // Parse the JSON response
+          
                 var response = JSON.parse(xhr.responseText);
                 
-                // Assuming 'product' is the key in the JSON response
+            
                 var productHTML = response.product;
 
-                // Assuming you have a modal with an ID 'editModal'
-                // Populate the modal body with the fetched data
+      
                 document.getElementById('editModal').innerHTML = productHTML;
 
-                // Open the modal
+               
                 document.getElementById('editModal').style.display = 'block';
             }
         };
         xhr.send();
     }
-</script>
-<<<<<<< HEAD
 
-=======
+
+    function logout() {
+        // Perform an AJAX request to the logout route
+        fetch('/logout', {
+            method: 'POST',
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Check the response for success
+            if (data.message === 'Logout successful') {
+                // Redirect to the home page or any other desired page
+                window.location.href = '/index';
+            } else {
+                // Handle logout failure if needed
+                alert('Logout failed. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error during logout:', error);
+            // Handle logout failure if needed
+            alert('An error occurred during logout. Please try again.');
+        });
+    }
+</script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/userInfo.js') }}"> </script>
 <script>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -187,7 +137,9 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+
+
+    
  </script>
->>>>>>> 3fef88f5e92c37792cbb504f465643a15c1c6bce
 </body>
 </html>

@@ -14,11 +14,20 @@ class User(db.Model, UserMixin):
     sr_code = db.Column(db.String(20), unique=True, nullable=False)
     program = db.Column(db.String(20), nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    user_level = db.Column (db.Integer, default=1)
+    user_level = db.Column (db.Integer, db.ForeignKey('user_level.user_level'), default=1, nullable=True)
 
     def __repr__(self):
         return f"User('{self.name}', '{self.email}', '{self.sr_code}', '{self.program}')"
+
+
+class UserLevel(db.Model):
+    user_level = db.Column(db.Integer, primary_key=True)
+    level_name = db.Column(db.String(20), unique=True, nullable=False)
+
+    def __repr__(self):
+        return f"UserLevel('{self.level_name}')"  
     
+
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
