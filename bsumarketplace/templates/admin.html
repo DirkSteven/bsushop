@@ -17,6 +17,7 @@
         <script src="https://kit.fontawesome.com/67c66657c7.js"></script>
         <script src="https://unpkg.com/boxicons@2.1.2/js/boxicons.min.js"></script>
 
+<<<<<<< HEAD
 
         <style>
             /* Style for the modal */
@@ -84,6 +85,22 @@
         <thead>
         <tr>
             <th>Name</th>
+=======
+    </head>
+<body>
+<div class="admin-content">
+    <h2 class="title-admin">Welcome to the Admin Dashboard</h2>
+
+    <!-- Display all products with variants and an "Edit Product" button -->
+    <div class="contain">
+        <h3 class="all-p">All Products</h3>
+        <a href="{{ url_for('index') }}" class="logout-btn-admin">Back to Shop</a>
+      </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Item</th>
+>>>>>>> 3fef88f5e92c37792cbb504f465643a15c1c6bce
             <th>Category</th>
             <th>Price</th>
             <th>Description</th>
@@ -152,6 +169,25 @@
         xhr.send();
     }
 </script>
+<<<<<<< HEAD
 
+=======
+<script type="text/javascript" src="{{ url_for('static', filename='js/userInfo.js') }}"> </script>
+<script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'success' %}
+                    // Display a success message alert
+                    alert('{{ message }}');
+                {% elif category == 'info' %}
+                    // Display an info message alert
+                    alert('{{ message }}');
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+ </script>
+>>>>>>> 3fef88f5e92c37792cbb504f465643a15c1c6bce
 </body>
 </html>

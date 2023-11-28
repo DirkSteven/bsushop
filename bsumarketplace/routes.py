@@ -89,13 +89,24 @@ def edit_product(product_id):
     variants = ProductVariant.query.filter_by(product_id=product.id).all()
 
     if request.method == 'POST':
+<<<<<<< HEAD
+=======
+        product.name = request.form.get('name')
+        product.price = request.form.get('price')
+        product.description = request.form.get('description')
+>>>>>>> 3fef88f5e92c37792cbb504f465643a15c1c6bce
 
         for variant in variants:
             variant.stock = request.form.get(f'variant_{variant.id}')
 
 
         db.session.commit()
+<<<<<<< HEAD
         return jsonify({'success': True})
+=======
+        flash('Changes saved successfully', 'success')
+        return redirect(url_for('admin'))
+>>>>>>> 3fef88f5e92c37792cbb504f465643a15c1c6bce
 
 
     form_content = render_template('edit_product_form.html', product=product, variants=variants)
