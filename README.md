@@ -11,7 +11,7 @@
   &nbsp;&nbsp;&nbsp; First install the dependencies required on the requirements.txt. To do this run  the `terminal` and enter the command below.
 
 ``` powershell
-    pip install -r requirements.r
+    pip install -r requirements.txt
 ```
 &nbsp;&nbsp;&nbsp; To run the program, open the `termminal` and navigate on the project directory using `cd` then run the command below.
 ```powershell
