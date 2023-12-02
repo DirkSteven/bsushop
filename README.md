@@ -87,11 +87,30 @@ Below are some of the examples of the utilization of the OOP principles in the p
 ```python
 
 
-### Insert example
+### In file "models.py"
 
+class User(db.Model, UserMixin):
+    # Attributes (name, email, sr_code, program, password) are encapsulated within this class.
 
+class UserLevel(db.Model):
+    # Attributes (user_level, level_name) are encapsulated within this class.
 
+class Category(db.Model):
+    # Attributes (id, name) are encapsulated within this class.
 
+class Product(db.Model):
+    # Attributes (id, category_id, name, price, description, image_url) are encapsulated within this class.
+
+class ProductVariant(db.Model):
+    # Attributes (id, product_id, size, stock) are encapsulated within this class.
+
+class Cart(db.Model):
+    # Attributes (id, user_id, product_id, quantity, selected_size, date_added) are encapsulated within this class.
+
+class Order(db.Model):
+    # Attributes (id, user_id, product_id, order_quantity, order_total, order_size, date_purchase) are encapsulated within this class.
+
+### Each class encapsulates its attributes, defining a clear boundary for the data it holds. For example, the User class encapsulates user-related attributes.
 
 ```
 - #### Inheritance
@@ -99,11 +118,30 @@ Below are some of the examples of the utilization of the OOP principles in the p
 ```python
 
 
-### Insert example
+### In file "models.py"
 
+class User(db.Model, UserMixin):
+    # Inherits from db.Model and UserMixin
 
+class UserLevel(db.Model):
+    # Inherits from db.Model
 
+class Category(db.Model):
+    # Inherits from db.Model
 
+class Product(db.Model):
+    # Inherits from db.Model
+
+class ProductVariant(db.Model):
+    # Inherits from db.Model
+
+class Cart(db.Model):
+    # Inherits from db.Model
+
+class Order(db.Model):
+    # Inherits from db.Model
+
+### Each class inherits from db.Model in Flask-SQLAlchemy, and User class also inherits from UserMixin for Flask-Login integration.
 
 ```
 <br>
@@ -114,11 +152,23 @@ Below are some of the examples of the utilization of the OOP principles in the p
 ```python
 
 
-### Insert example
+### In file "models.py"
 
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    sr_code = db.Column(db.String(20), unique=True, nullable=False)
+    program = db.Column(db.String(20), nullable=False)
+    password = db.Column(db.String(60), nullable=False)
+    user_level = db.Column (db.Integer, db.ForeignKey('user_level.user_level'), default=1, nullable=True)
 
+    def __repr__(self):
+        return f"User('{self.name}', '{self.email}', '{self.sr_code}', '{self.program}')"
 
+    # Polymorphic method __repr__ for string representation.
 
+### This class defines a __repr__ method, providing a polymorphic way to represent instances as strings.
 
 ```
 
@@ -129,11 +179,23 @@ Below are some of the examples of the utilization of the OOP principles in the p
 ```python
 
 
-### Insert example
+### In file "models.py"
 
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    sr_code = db.Column(db.String(20), unique=True, nullable=False)
+    program = db.Column(db.String(20), nullable=False)
+    password = db.Column(db.String(60), nullable=False)
+    user_level = db.Column (db.Integer, db.ForeignKey('user_level.user_level'), default=1, nullable=True)
 
+    def __repr__(self):
+        return f"User('{self.name}', '{self.email}', '{self.sr_code}', '{self.program}')"
 
+    # Abstraction of a user with attributes like name, email, sr_code, program, etc.
 
+### Encapsulating the attributes and providing a representation method, the User class abstracts the complexities of user management, providing a clean and simplified interface for working with user entities.
 
 ```
 <br>
