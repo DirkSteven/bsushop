@@ -1,5 +1,5 @@
 <p align = "center">
-  <img src = "Logo.png" width = "300" height = "300" alt="LogoInsert"> 
+  <img src = "bsu_logo.png" width = "300" height = "300" alt="LogoInsert"> 
 </p>
 
 # BatState-U Community Marketplace
