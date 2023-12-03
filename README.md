@@ -152,24 +152,47 @@ class Order(db.Model):
 ```python
 
 
-### In file "models.py"
+### In file "search.js"
 
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(30), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    sr_code = db.Column(db.String(20), unique=True, nullable=False)
-    program = db.Column(db.String(20), nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-    user_level = db.Column (db.Integer, db.ForeignKey('user_level.user_level'), default=1, nullable=True)
+class Filter {
+  constructor(elements) {
+    this.elements = Array.from(elements);
+  }
 
-    def __repr__(self):
-        return f"User('{self.name}', '{self.email}', '{self.sr_code}', '{self.program}')"
+  applyFilter(searchTerm) {
+    throw new Error("Subclasses must implement the applyFilter method");
+  }
 
-    # Polymorphic method __repr__ for string representation.
+  addEventListeners() {
+    throw new Error("Subclasses must implement the addEventListeners method");
+  }
+}
 
-### This class defines a __repr__ method, providing a polymorphic way to represent instances as strings.
+class ProductNameFilter extends Filter {
+  constructor(searchInput, productList) {
+    super(productList);
+    this.searchInput = searchInput;
+    this.addEventListeners();
+  }
 
+class SectionFilter extends Filter {
+  constructor(element) {
+    super([element]);
+    this.addEventListeners();
+  }
+
+  applyFilter() {
+    scrollIntoViewSmooth(this.elements[0]);
+  }
+
+  addEventListeners() {
+    this.elements[0].addEventListener("click", () => {
+      this.applyFilter();
+    });
+  }
+}
+
+ProductNameFilter and SectionFilter extend the Filter class, inheriting the common interface.They provide their implementations of the abstract methods (applyFilter and addEventListeners), demonstrating polymorphism.
 ```
 
 <br>
