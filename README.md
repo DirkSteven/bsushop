@@ -469,8 +469,8 @@ In addition, the dependencies and libraries that are found in the `requirements.
 | Name | Role | E-mail | Other Contacts |
 | --- | --- | --- | --- |
 | <a href = "https://github.com/DirkSteven">Dirk Steven E. Javier</a> | Project Leader | dirkjaviermvp@gmail.com | Allonsy -Discord |
-| <a href = "https://github.com/LanceAndrei04">Lance Andrei Espina </a>|  Role  | lanceandrei.espina30@gmail.com |  |
-| <a href = "https://github.com/AeronEvangelista">Aeron Evangelista </a>| Role | Insert email link |  |
+| <a href = "https://github.com/LanceAndrei04">Lance Andrei Espina </a>|  Developer  | lanceandrei.espina30@gmail.com |  |
+| <a href = "https://github.com/AeronEvangelista">Aeron Evangelista </a>| Developer | mr.aeronevangelista@gmail.com | Zayed - Discord|
 
 
 
