@@ -57,23 +57,28 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Check if the user is already logged in
-    if current_user.is_authenticated:
-        print('User Already Logged In', 'info')
-        return redirect(url_for('index'))
+    if request.method == 'POST':
+        sr_code = request.form['sr_code']
+        password = request.form['password']
 
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(sr_code=form.sr_code.data).first()
+        # Establish a connection to the SQLite database
+        conn = sqlite3.connect('your_database.db')
+        cursor = conn.cursor()
 
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user)
+        # Execute raw SQL to fetch user data based on sr_code
+        cursor.execute("SELECT * FROM user WHERE sr_code = ?", (sr_code,))
+        user = cursor.fetchone()
+
+        if user and check_password_hash(user[2], password):  # Assuming user[2] is the hashed password column
             flash('Login Successful', 'success')
+            # Redirect or perform additional actions after successful login
             return redirect(url_for('index'))
         else:
             flash('Login Failed. Please check your SR-Code and password', 'danger')
 
-    return render_template('login.html', title='Login', form=form)
+        conn.close()
+
+    return render_template('login.html', title='Login')
 
 
 @app.route('/get_user_info', methods=['GET'])
@@ -106,30 +111,35 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegistrationForm()
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        program = request.form.get('program')
+        sr_code = request.form.get('sr_code')
 
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(name=form.name.data, email=form.email.data, password=hashed_password,
-                    program=form.program.data, sr_code=form.sr_code.data)
+        # Validate the form data as needed
 
-        # For Debug
-        print("Form validated successfully")
-        print(f'Name: {form.name.data}')
-        print(f'Email: {form.email.data}')
-        print(f'Program: {form.program.data}')
-        print(f'SR-Code: {form.sr_code.data}')
+        hashed_password = generate_password_hash(password).decode('utf-8')
 
-        db.session.add(user)
-        db.session.commit()
-        flash(f'Account Created for {form.name.data}!')
+        # Using raw SQL query to insert data into the database
+        sql = """
+            INSERT INTO user (name, email, password, program, sr_code)
+            VALUES (:name, :email, :password, :program, :sr_code)
+        """
+        db.engine.execute(
+            sql,
+            name=name,
+            email=email,
+            password=hashed_password,
+            program=program,
+            sr_code=sr_code
+        )
+
+        flash(f'Account Created for {name}!')
         return redirect(url_for('login'))
-    else:
-        # For Debug
-        print("Form validation failed")
-        print(form.errors)
 
-    return render_template('signup.html', title='Register', form=form)
+    return render_template('signup.html', title='Register')
 
 
 @app.route('/get_additional_data/<int:product_id>', methods=['GET'])
