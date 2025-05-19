@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+   <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" />  
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.css') }}"> 
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" 
+      integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+   <script src="https://kit.fontawesome.com/67c66657c7.js" ></script>
+   <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+
+
+   {% if title %}
+    <title>{{ title }}</title>
+    {% else %}
+    <title> BATSTATEU UNOFFICIAL MARKETPLACE </title>
+    {% endif %}
+
+   </head>  
+
+<body>
+      
+   <!--Navigation Bar-->
+   <nav>
+
+      
+
+    
+      <div class="logo">
+         
+      </div>
+      <div class="icon">
+         <img src="{{ url_for('static', filename='img/bsu_logo.png') }}" class="logo"> 
+         <h1>BATSTATEU</h1>
+
+      </div>
+      <div class="search_box">
+         <input type = "text" id="productSearch" placeholder="Search...">
+         <span class="fa fa-search" id="searchIcon"></span>
+      </div>
+      <div class="side">
+         <div class="cart"><i class="fa fa-shopping-cart" id="cartIcon"></i><p class="count" id="cart-ctr">0</p></div>
+         <div class="shopbag" ><i class="fa fa-shopping-bag" id="ordersIcon" ></i><p class="count" id="order-ctr">0</p></div>
+         <div class="message"><i class="fa fa-envelope" id="messageIcon"></i></div>
+         {% if is_user_logged_in %}
+           <i class="fa fa-user" id="acc"></i>
+            <div id="popup_acc">
+               <div class="popAcc">
+                  <img src="{{ url_for('static', filename='img/user_info.png') }}" alt="User Info Image">
+                  <span class="close-btn" onclick="closePopup_user()">×</span>
+                  <div class="user_info">
+                     <p class="uName"></p>
+                     <p class="uSRCode"></p>
+                     <p class="uProgram"></p>
+                     <p class="uEmail"></p>
+                     <p class="uID"></p>
+                  </div>
+                  <button type="button" class="logout-btn">Log Out</button>
+               </div>
+            </div>
+         
+         {% else %}
+               <a href="{{ url_for('login') }}" class="custom-link">
+                  <div class="acc" id="acc"><i class="fa fa-user"></i></div>
+               </a>
+         {% endif %}
+      </div>
+
+    
+      
+   </nav>
+
+<!--INVOICE-->
+<div id="invoice">
+   <div class="popAcc">
+      <img src="{{ url_for('static', filename='img/invoice.png') }}" alt="INVOICE">
+      <span class="close-btn" onclick="closePopup()">×</span>
+      <div class="invoice_info">
+         <div class="iUser">
+            <p class="iName"></p>
+            <p class="iSRCode"></p>
+         </div>
+         <div class="iOrder">
+            <p class="iQty"></p>
+            <p class="iItem"></p>
+            <p class="iSize"></p>
+         </div>
+         <div class="inv">
+            <p class="iDate"></p>
+            <p class="iTotal"></p>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+<!-- CART  -->
+<div class="Tab" id="cartTab">
+   <h2 class="Tab-title">Your Cart</h2>
+
+   <!-- CONTENT  -->
+   <div class="cart-content">
+       {% for cart_item in user_cart %}
+           <p>{{ cart_item.product.name }} - Quantity: {{ cart_item.quantity }}</p>
+           <!-- Add more details or formatting as needed -->
+       {% endfor %}
+   </div>
+
+   <!-- TOTAL   -->
+   <div class="total">
+       <div class="total-title">Cart Total:</div>
+       <div class="total-price"></div>
+   </div>
+   <!-- BUY BUTTON  -->
+   <button type="button" class="btn-buy" id="buyNowButton" onclick="handleBuyNow();removeItemFromCart(productName,size);">BUY NOW</button>
+   <!-- CART CLOSE  -->
+   <i class='bx bx-x close' id="closeCart"></i>
+</div>
+
+<!--Message-->
+<div class="Tab" id="messageTab">
+   <!-- CART CLOSE  -->
+   <i class='bx bx-x close' id="closeMessage"></i>
+   <h2 class="Tab-title">Messages</h2>
+   <div class="message-content" id="messageContent">
+      <!-- Messages will be displayed here -->
+  </div>
+  <div class="message-input-container">
+      <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." />
+      <button class="send-button" id="sendButton">Send</button>
+  </div>
+   
+</div>
+
+<!-- ORDER -->
+<div class="Tab" id="orderTab">
+   <h2 class="Tab-title">Your Order</h2>
+   <!-- CONTENT -->
+   <div class="order-content"> 
+      
+   </div>
+   <!-- CART CLOSE  -->
+   <i class='bx bx-x close' id="closeOrder"></i>
+</div>
+
+<div id="popup">
+   <span class="close-btn" onclick="closePopup_product()">×</span>
+   <div class="popup-image-container">
+
+       <div id="productDetails" class="product-details">
+           <h3 class="productname"></h3>
+           <p id="productSize"></p>
+       </div>
+   </div>
+</div>
+
+ <!--Home Section-->
+      <section class="first" id="first">
+        
+         <div id="container">
+            <img src="{{ url_for('static', filename='img/bsu.png') }}" id="home">
+         </div>
+
+         <div class="topmessage">
+            <h4>Batangas State University - The National Engineering University Unofficial Market Place</h4>
+         </div>
+         <h1 class="suggest_text">Suggested for you</h1>
+        
+         <div class="suggest">
+            {% for product in uniform_products %}
+            <div class="suggest_box">
+               
+               <div class="suggest_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', true, {{ product.price }}, '{{ product.description }}', 'Uniform', '{{ product.id }}')">
+                  <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="pic_s">
+                  <div class="product_info">
+                     <h3 class="prod_name"> {{  product.name }}</h3>
+                     <h3 class="price">₱{{  product.price }}</h3>
+                  </div>
+               </div> 
+            </div>
+            {% endfor %}
+         </div>
+
+         <div class="banner">
+            <img src="{{ url_for('static', filename='img/shop_banner.png') }}" class="pic_banner">
+         </div>
+      </section>
+
+      <!--SHOP-->
+      <section class="shop" id="shop">
+         <div class="category">
+            <button class="uniform" id="uniform">UNIFORM</button>
+            <button class="merch" id="merch"> UNIVERSITY MERCH</button>
+            <button class="org_merch" id="org_merch">ORGANIZATIONAL MERCH</button>
+         </div>
+
+<!-- PREVIEW -->        
+{% for product_list in [uniform_products, univ_merch_products, org_merch_products] %}
+   <div class="product-previews">
+      {% for product in product_list %}
+         {% if product.name is defined %}
+            <!-- UNIFORMS -->
+            <div class="uniform_prev">
+               <div class="product-preview" data-product="{{ product.id }}">
+                  <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="preview-img">
+               </div>
+            </div>
+            <!-- UNIVERSITY MERCH --> 
+            <div class="univ_merch_prev">
+               <div class="product-preview" data-product="{{ product.id }}">
+                  <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="preview-img">
+               </div>
+            </div>
+            <!-- ORG MERCH -->
+            <div class="org_merch_prev">
+               <div class="product-preview" data-product="{{ product.id }}">
+                  <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="preview-img">
+               </div>
+            </div>
+         {% endif %}
+      {% endfor %}
+      <!-- DEFAULT IMAGE -->
+      <div class="product-preview" data-product="DefaultProduct.png">
+         <img src="{{ url_for('static', filename='img/DefaultProduct.png') }}" class="preview-img">
+      </div>
+   </div>
+{% endfor %}
+
+<!-- Uniform -->
+<div class="product" id="Uniform_section">
+   <div class="product_box">
+       {% for product in uniform_products %}
+           <div class="product_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', true, {{ product.price }}, '{{ product.description }}', 'Uniform', '{{ product.id }}')">
+               <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="pic_s" id="{{ product.id }}">
+               <div class="product_info">
+                   <h3 class="prod_name">{{ product.name }}</h3>
+                   <h3 class="price"> ₱ {{ product.price }}</h3>
+               </div>
+           </div>
+       {% endfor %}
+   </div>
+</div>
+<!-- UnivMerch -->
+<div class="product" id="UniversityMerch_section">
+   <div class="product_box">
+       {% for product in univ_merch_products %}
+           <div class="product_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', false, {{ product.price }}, '{{ product.description }}', 'University Merchandise', '{{ product.id }}')">
+               <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="pic_s" id="{{ product.id }}">
+               <div class="product_info">
+                   <h3 class="prod_name">{{ product.name }}</h3>
+                   <h3 class="price"> ₱ {{ product.price }}</h3>
+               </div>
+           </div>
+       {% endfor %}
+   </div>
+</div>
+         <!-- ORG MERCH -->
+         <div class="product" id="ORGMerch_section">
+            <div class="product_box">
+                {% for product in org_merch_products %}
+                <div class="product_pic" onclick="openProductOptionsPopup('{{ product.name }}', '{{ url_for('static', filename='img/' + product.name + '.png') }}', false, {{ product.price }},  '{{ product.description }}', 'Organization Merchandise' , '{{ product.id }}')">
+                        <img src="{{ url_for('static', filename='img/' + product.name + '.png') }}" class="pic_s" id="{{ product.id }}">
+                        <div class="product_info">
+                            <h3 class="prod_name">{{ product.name }}</h3>
+                            <h3 class="price"> ₱ {{ product.price }}</h3>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+         </div>
+</section>
+
+   <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/addTocart.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/search.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/message.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/orders.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/categories.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/preview.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/pop-upOrder.js') }}"> </script> 
+   <script type="text/javascript" src="{{ url_for('static', filename='js/userInfo.js') }}"> </script>
+   <script type="text/javascript" src="{{ url_for('static', filename='js/invoice.js') }}"> </script>
+
+   
+   
+
+
+   <script>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  {% if category == 'success' %}
+                      // Display a success message alert
+                      alert('{{ message }}');
+                  {% elif category == 'info' %}
+                      // Display an info message alert
+                      alert('{{ message }}');
+                  {% endif %}
+              {% endfor %}
+          {% endif %}
+      {% endwith %}
+  </script>
+</body>
+
+
+</html>
